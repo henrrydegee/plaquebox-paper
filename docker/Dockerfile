@@ -51,3 +51,11 @@ RUN echo "export PATH=$PATH:~/.local/bin/" >> /root/.bashrc
 RUN apt update && apt -y upgrade
 
 WORKDIR /root
+
+######################################
+# SECTION 4: Add running instruction #
+######################################
+RUN echo "echo -e \"\n\"" >> /root/.bashrc
+RUN echo "echo -e \"################################################################################\n\"" >> /root/.bashrc
+RUN echo "echo -e \"\tCommand to enter repository:\n\t\tcd /root/plaquebox-paper && jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=9000 &\n\"" >> /root/.bashrc
+RUN echo "echo -e \"################################################################################\n\"" >> /root/.bashrc
