@@ -7,6 +7,7 @@ IMGNAME="plaquebox"
 CONTNAME="plaquebox"
 DOCKERFILEPATH="./docker/Dockerfile"
 REPONAME="plaquebox-paper"
+JUPYTERPORT="9000"
 cd "$SCRIPTPATH"
 
 test_retval() {
@@ -86,16 +87,17 @@ echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
 nvidia-docker create -it --name=$CONTNAME \
 	-v "$SCRIPTPATH":/root/$REPONAME \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
-        -e DISPLAY=$DISPLAY \
+  -e DISPLAY=$DISPLAY \
 	--ipc=host \
+  -p $JUPYTERPORT:$JUPYTERPORT \
 	$IMGNAME /bin/bash
 test_retval "create Docker container"
 
-# Echo command to continue building
-COMMANDTOBUILD="cd /root/$REPONAME"
+# Echo command to run the application
+COMMANDTORUN="cd /root/$REPONAME && jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=$JUPYTERPORT &"
 echo -e "\n\n"
 echo -e "################################################################################\n"
-echo -e "\tCommand to enter repository:\n\t\t${COMMANDTOBUILD}\n"
+echo -e "\tCommand to enter repository:\n\t\t${COMMANDTORUN}\n"
 echo -e "################################################################################\n"
 
 nvidia-docker start -ai $CONTNAME

@@ -1,23 +1,45 @@
-FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-devel
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+#FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-devel
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  build-essential \
+  cmake \
+  wget \
+  git \
+  curl \
+  ca-certificates \
+  libjpeg-dev \
+  libpng-dev \
+  vim \
+  apt-utils \
+  software-properties-common \
+  && rm -rf /var/lib/apt/lists/*
 
 ######################################
-# SECTION 1: Python 3 packages       #
+# SECTION 1: Python 3.6 packages     #
 ######################################
-RUN apt-get update && apt-get install -y --no-install-recommends apt-utils libvips libvips-dev
+RUN add-apt-repository ppa:jonathonf/python-3.6 && apt-get update \
+  && apt-get install -y python3.6 python3.6-dev python3.6-venv
+RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
+RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
+
+RUN apt-get update && apt-get install -y --no-install-recommends libvips libvips-dev
 RUN apt-get -y upgrade
 
-RUN apt-get -y install python3-pip vim
-RUN pip3 install pip --upgrade
-RUN pip3 install -U numpy cython ipython jupyter matplotlib pandas scikit-learn \
-  scikit-image scipy torchvision tqdm
-RUN pip install pyvips
+RUN pip3.6 install pip --upgrade
+RUN pip3.6 install -U numpy cython ipython jupyter matplotlib pandas scikit-learn \
+  scikit-image scipy tqdm
+RUN pip3.6 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+RUN pip3.6 install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+RUN pip3.6 install pyvips
 
 ######################################
 # SECTION 2: OpenCV packages         #
 ######################################
-RUN mkdir -p /tmp/install/
-ADD ./install/opencv3 /tmp/install/opencv3
-RUN chmod +x /tmp/install/opencv3/install.sh && /tmp/install/opencv3/install.sh /usr/local
+#RUN mkdir -p /tmp/install/
+#ADD ./install/opencv3 /tmp/install/opencv3
+#RUN chmod +x /tmp/install/opencv3/install.sh && /tmp/install/opencv3/install.sh /usr/local
+RUN pip3.6 install -U opencv-python==3.4.5.20
 
 ######################################
 # SECTION 3: Additional Utilities    #
