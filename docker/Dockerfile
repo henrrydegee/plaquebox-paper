@@ -29,8 +29,11 @@ RUN apt-get -y upgrade
 RUN pip3.6 install pip --upgrade
 RUN pip3.6 install -U numpy cython ipython jupyter matplotlib pandas scikit-learn \
   scikit-image scipy tqdm
-RUN pip3.6 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
-RUN pip3.6 install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+#RUN pip3.6 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+# Use previous version to read trained model
+RUN pip3.6 install torch==0.3.1 -f https://download.pytorch.org/whl/cu100/stable
+#RUN pip3.6 install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+RUN pip3.6 install torchvision==0.2.1
 RUN pip3.6 install pyvips
 
 ######################################
