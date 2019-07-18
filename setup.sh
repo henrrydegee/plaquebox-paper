@@ -63,6 +63,26 @@ echo -e "#######################################################################
 # Print usage
 echo -e "\n$USAGE\n"
 
+# Get user info
+echo -e "Please identify yourself.\n\t0 - Kolin, 1 - Jeff, 2 - Wenda"
+read user
+if [ "$user" = "0" ] ; then
+	CONTNAME+="-kolin"
+	JUPYTERPORT="9000"
+	echo -e "Welcome, Kolin. Please use port 9000.\n"
+elif [ "$user" = "1" ] ; then
+	CONTNAME+="-jeff"
+	JUPYTERPORT="9001"
+	echo -e "Welcome, Jeff. Please use port 9001.\n"
+elif [ "$user" = "2" ] ; then
+	CONTNAME+="-wenda"
+	JUPYTERPORT="9002"
+	echo -e "Welcome, Wenda. Please use port 9002.\n"
+else
+	echo -e "Wrong input... Exiting...\n"
+	exit 1
+fi
+
 echo -e ".......... Set up will start in 5 seconds .........."
 sleep 5
 
@@ -86,10 +106,17 @@ fi
 echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
 nvidia-docker create -it --name=$CONTNAME \
 	-v "$SCRIPTPATH":/root/$REPONAME \
+	-v "/home/kolinguo/plaquebox-data/box":"/root/$REPONAME/data/box" \
+	-v "/home/kolinguo/plaquebox-data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
+	-v "/home/kolinguo/plaquebox-data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
+	-v "/home/kolinguo/plaquebox-data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
+	-v "/home/kolinguo/plaquebox-data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
+	-v "/home/kolinguo/plaquebox-data/tiles":"/root/$REPONAME/data/tiles" \
+	-v "/home/kolinguo/plaquebox-data/zips":"/root/$REPONAME/data/zips" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
-  -e DISPLAY=$DISPLAY \
+	-e DISPLAY=$DISPLAY \
 	--ipc=host \
-  -p $JUPYTERPORT:$JUPYTERPORT \
+	-p $JUPYTERPORT:$JUPYTERPORT \
 	$IMGNAME /bin/bash
 test_retval "create Docker container"
 
