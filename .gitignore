@@ -1,8 +1,8 @@
+data/*
+data/outputs/heatmaps
+!data/outputs
 !data/outputs/heatmaps_png
 !data/CSVs
-!data/outputs
-!data/seg
-data/
 
 # ----------- Vim related    -----------
 *.swp
