@@ -113,6 +113,7 @@ nvidia-docker create -it --name=$CONTNAME \
 	-v "/home/kolinguo/plaquebox-data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
 	-v "/home/kolinguo/plaquebox-data/tiles":"/root/$REPONAME/data/tiles" \
 	-v "/home/kolinguo/plaquebox-data/zips":"/root/$REPONAME/data/zips" \
+	-v "/home/kolinguo/plaquebox-data/outputs":"/root/$REPONAME/data/outputs" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=$DISPLAY \
 	--ipc=host \
