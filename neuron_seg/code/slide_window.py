@@ -3,31 +3,37 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # read the image and window in
-overall_img = cv2.imread("transformed_img.png")
-img_patch = cv2.imread("Neuron_patch.png")
+overall_img = cv2.imread("../image/transformed_img.png")
+img_patch = cv2.imread("../image/Neuron_patch.png")
+print("rows: ", img_patch.shape[0])
+print("cols: ", img_patch.shape[1])
+print("rows: ", overall_img.shape[0])
+print("cols: ", overall_img.shape[1])
 
 # define step size and define window width and height
 stepSize = 1
 (w_width, w_height) = (img_patch.shape[1], img_patch.shape[0])
 
 # initialize a matrix to hold score image
-score_img = np.zeros((overall_img.shape[1] - w_width, overall_img.shape[0] - w_height))
+score_img = np.zeros((overall_img.shape[0] - w_height, overall_img.shape[1] - w_width))
 
-for x in range(0, overall_img.shape[1] - w_width, stepSize):
-	for y in range(0, overall_img.shape[0] - w_height, stepSize):
+for x in range(0, overall_img.shape[0] - w_height, stepSize):
+	for y in range(0, overall_img.shape[1] - w_width, stepSize):
 		#print(np.multiply(overall_img[x:x + w_width, y:y + w_height],img_patch))
-		score_img[x, y] = np.sum(np.multiply(overall_img[x:x + w_width, y:y + w_height],img_patch))
+		score_img[x, y] = np.sum(np.multiply(overall_img[x:x + w_height, y:y + w_width],img_patch))
+		#print("x ", x)
+		#print("y ", y)
 
 # normalization on the score image value, normaize the maximum to 255
 max_value = np.max(score_img)
 score_img = score_img * 255 / max_value
-cv2.imwrite('score_image.png', score_img)
+cv2.imwrite('../image/score_image.png', score_img)
 # monitor the intensity distribution in the image
 #print(np.max(score_img))
 #print(np.min(score_img))
 
 # generate different score image by examining different thresholds
-img = cv2.imread('score_image.png', 0)
+img = cv2.imread('../image/score_image.png', 0)
 # generate thresholded image for scores above 230
 ret,thresh1 = cv2.threshold(img,230,255,cv2.THRESH_BINARY)
 # generate thresholded image for score above 220
