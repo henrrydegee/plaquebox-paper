@@ -35,7 +35,7 @@ cv2.imwrite('../image/preprocessing_pipeline/score_image.png', score_img)
 # generate different score image by examining different thresholds
 img = cv2.imread('../image/preprocessing_pipeline/score_image.png', 0)
 img2 = cv2.imread('../image/preprocessing_pipeline/threshold_original_160.png', 0)
-# generate thresholded image for scores above 230
+# generate thresholded image for scores above 180
 ret,thresh1 = cv2.threshold(img,180,255,cv2.THRESH_BINARY_INV)
 # generate thresholded image for score above 220
 ret,thresh2 = cv2.threshold(img,220,255,cv2.THRESH_BINARY_INV)
