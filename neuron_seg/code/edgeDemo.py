@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-img = cv2.imread('NA4009-02_AB_10_10_14.jpg', 0)
+img = cv2.imread('../image/preprocessing_pipeline/threshold_original_160.png', 0)
 # currently, using Otsu's method is not necessary 
 # high_thresh1, thresh_img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 # lowThresh1 = 0.5*high_thresh1
@@ -14,9 +14,9 @@ plt.subplot(221),plt.imshow(img,cmap = 'gray')
 plt.title('Overall Image'), plt.xticks([]), plt.yticks([])
 plt.subplot(222),plt.imshow(edges,cmap = 'gray')
 plt.title('Overall Edge Image'), plt.xticks([]), plt.yticks([])
-cv2.imwrite("overall_edge.png", edges)
+cv2.imwrite("../image/preprocessing_pipeline/overall_edge.png", edges)
 
-img2 = cv2.imread('cropped_image.png', 0)
+img2 = cv2.imread('../image/preprocessing_pipeline/cropped_image.png', 0)
 # with arbitrary threshold
 edges2 = cv2.Canny(img2, 180, 200)
 
@@ -37,7 +37,7 @@ plt.subplot(223),plt.imshow(img2,cmap = 'gray')
 plt.title('Neuron Image'), plt.xticks([]), plt.yticks([])
 plt.subplot(224),plt.imshow(edges2,cmap = 'gray')
 plt.title('Neuron Edge Image'), plt.xticks([]), plt.yticks([])
-cv2.imwrite("Neuron_patch.png", edges2)
+cv2.imwrite("../image/preprocessing_pipeline/Neuron_patch.png", edges2)
 
 plt.show()
 

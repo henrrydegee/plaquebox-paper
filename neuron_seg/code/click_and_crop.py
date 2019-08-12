@@ -61,7 +61,7 @@ while True:
 # from teh image and display it
 if len(refPt) == 2:
 	roi = clone[refPt[0][1]:refPt[1][1],refPt[0][0]:refPt[1][0]]
-	cv2.imwrite("cropped_image.png", roi)
+	cv2.imwrite("../image/preprocessing_pipeline/cropped_image.png", roi)
 	cv2.imshow("ROI", roi)
 	cv2.waitKey(0)
 
