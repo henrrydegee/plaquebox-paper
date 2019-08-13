@@ -10,6 +10,7 @@ image = np.array(Image.open("post_threshold_morphology_170.png"),dtype=np.uint8)
 datapoints = np.where(image != 0)
 x_coords = list(datapoints[0])
 y_coords = list(datapoints[1])
+# y_coords = list(255 - datapoints[1])
 # generate all the datapoints coordinates
 coords = np.array(list((zip(x_coords,y_coords))))
 print(coords)
@@ -31,8 +32,8 @@ ax = fig.add_subplot(1,1,1)
 for k, col in zip(range(2), colors):
 	my_members = k_means_labels == k
 	cluster_center = k_means_cluster_centers[k]
-	ax.plot(coords[my_members,0], coords[my_members,1], 'w', markerfacecolor=col, marker = '.')
-	ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+	ax.plot(coords[my_members,1], 255 - coords[my_members,0], 'w', markerfacecolor=col, marker = '.')
+	ax.plot(cluster_center[1], cluster_center[0], 'o', markerfacecolor=col,
             markeredgecolor='k', markersize=6)
 
 ax.set_title('KMeans')
