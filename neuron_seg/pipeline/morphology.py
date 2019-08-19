@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 # Apply erosion and dilation of images on binary image
 
 #img = np.array(Image.open("../image/unpreprocessing_pipline/NA4009-02_AB_10_10_14.jpg"),dtype=np.uint8)
-img2 = np.array(Image.open("threshold_morphology_170.png"),dtype=np.uint8)
+img2 = np.array(Image.open("threshold_morphology_120.png"),dtype=np.uint8)
 
 # generate thresholded image for score below 160
 

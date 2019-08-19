@@ -4,11 +4,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from skimage import io
 
-original_img = np.array(Image.open("dilation_erosion2.png"))
+original_img = np.array(Image.open("threshold_morphology_120.png"))
 original = original_img.copy()
 
 # remove plaque pixels which based on experiments are around 130
-original_img[original_img <= 130] = 255
+# original_img[original_img >= 100] = 255
 
 plt.subplot(121),plt.imshow(original)
 plt.title('Original Image'), plt.xticks([]), plt.yticks([])
