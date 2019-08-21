@@ -1,3 +1,4 @@
+
 import numpy as np
 import cv2
 from itertools import chain
@@ -5,7 +6,7 @@ import matplotlib.pyplot as plt
 import statistics
 import math
 
-img = cv2.imread('ccbbox_200.png', 0)	 
+img = cv2.imread('../post_threshold_morphology_120.png', 0)	 
 # store corresponding areas of each component, set thresholds of areas later on
 print(img)
 w = np.zeros(img.shape)
@@ -75,14 +76,13 @@ print("max of those counts: ", max(counts))
 print("min of those counts: ", min(counts))
 print("median of those", statistics.median(counts))
 
-
+"""
 low_threshold = 30
 high_threshold = 500
 for key, value in cc_stas.items():
-	#if value > low_threshold:
 	if value > high_threshold or value < low_threshold:
 		cc[cc == key] = 0	
-
+"""
 
 #plt.hist(np.array(counts), bins='auto')
 #plt.gca().set(title='Area cc Histogram', ylabe,l='Frequency')
@@ -91,15 +91,14 @@ for key, value in cc_stas.items():
 # threshold this 2d array image if below certain value
 #cc[cc >= 5000] = 0
 
-"""
 high_area_thresh = 200
 for key, value in set_area.items():
 	if value > high_area_thresh:
 		cc[cc == key] = 0
-"""
+
 # print(set_area)
 print("max of count: ", max(unique))
 print("maximum set in the image: ", np.max(cc))
-cv2.imwrite("./ccbbox_200_30.png", cc)
-# cv2.imwrite("./cc40.png", cc)
+# cv2.imwrite("./ccbbox_300.png", cc)
+cv2.imwrite("./ccbbox_200.png", cc)
 
