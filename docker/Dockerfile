@@ -36,6 +36,12 @@ RUN pip3.6 install torch==0.3.1 -f https://download.pytorch.org/whl/cu100/stable
 RUN pip3.6 install torchvision==0.2.1
 RUN pip3.6 install pyvips
 
+# Install extensions for Jupyter Notebook to allow codefolding in editor
+RUN pip3.6 install jupyter_contrib_nbextensions
+RUN jupyter contrib nbextension install
+RUN pip3.6 install jupyter_nbextensions_configurator
+RUN jupyter nbextensions_configurator enable
+
 ######################################
 # SECTION 2: OpenCV packages         #
 ######################################
