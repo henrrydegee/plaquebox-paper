@@ -34,7 +34,7 @@ RUN pip3.6 install -U numpy cython ipython jupyter matplotlib pandas scikit-lear
 RUN pip3.6 install torch==0.3.1 -f https://download.pytorch.org/whl/cu100/stable
 #RUN pip3.6 install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
 RUN pip3.6 install torchvision==0.2.1
-RUN pip3.6 install pyvips
+RUN pip3.6 install pyvips pyod
 
 # Install extensions for Jupyter Notebook to allow codefolding in editor
 RUN pip3.6 install jupyter_contrib_nbextensions
@@ -45,10 +45,10 @@ RUN jupyter nbextensions_configurator enable
 ######################################
 # SECTION 2: OpenCV packages         #
 ######################################
-#RUN mkdir -p /tmp/install/
-#ADD ./install/opencv3 /tmp/install/opencv3
-#RUN chmod +x /tmp/install/opencv3/install.sh && /tmp/install/opencv3/install.sh /usr/local
-RUN pip3.6 install -U opencv-python==3.4.5.20
+RUN mkdir -p /tmp/install/
+ADD ./install/opencv3 /tmp/install/opencv3
+RUN chmod +x /tmp/install/opencv3/install.sh && /tmp/install/opencv3/install.sh /usr/local/share
+#RUN pip3.6 install -U opencv-python==3.4.5.20
 
 ######################################
 # SECTION 3: Additional Utilities    #
