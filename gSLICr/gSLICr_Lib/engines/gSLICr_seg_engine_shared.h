@@ -89,7 +89,12 @@ _CPU_AND_GPU_CODE_ inline void init_cluster_centers_shared(const gSLICr::Vector4
 	out_spixel[cluster_idx].no_pixels = 0;
 }
 
-_CPU_AND_GPU_CODE_ inline float compute_slic_distance(const gSLICr::Vector4f& pix, int x, int y, const gSLICr::objects::spixel_info& center_info, float weight, float normalizer_xy, float normalizer_color)
+_CPU_AND_GPU_CODE_ inline float compute_slic_distance(
+    const gSLICr::Vector4f& pix, 
+    int x, int y, 
+    const gSLICr::objects::spixel_info& center_info, 
+    const double& in_max_dist_color, 
+    float weight, float normalizer_xy, float normalizer_color, bool slic_zero)
 {
 	float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
 				 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
@@ -98,12 +103,25 @@ _CPU_AND_GPU_CODE_ inline float compute_slic_distance(const gSLICr::Vector4f& pi
 	float dxy = (x - center_info.center.x) * (x - center_info.center.x)
 			  + (y - center_info.center.y) * (y - center_info.center.y);
 
-
-	float retval = dcolor * normalizer_color + weight * dxy * normalizer_xy;
-	return sqrtf(retval);
+  // Add divide by max_dist_color[k]
+  if (slic_zero)
+    return dcolor * normalizer_color / in_max_dist_color + weight * dxy * normalizer_xy;
+  else
+    return dcolor * normalizer_color + weight * dxy * normalizer_xy;
+//	float retval = dcolor * normalizer_color + weight * dxy * normalizer_xy;
+//	return sqrtf(retval); // FIXME: probably unnecessary sqrtf
 }
 
-_CPU_AND_GPU_CODE_ inline void find_center_association_shared(const gSLICr::Vector4f* inimg, const gSLICr::objects::spixel_info* in_spixel_map, int* out_idx_img, gSLICr::Vector2i map_size, gSLICr::Vector2i img_size, int spixel_size, float weight, int x, int y, float max_xy_dist, float max_color_dist)
+// Find which center pixel (x,y) belongs to
+_CPU_AND_GPU_CODE_ inline void find_center_association_shared(
+    const gSLICr::Vector4f* inimg, 
+    const gSLICr::objects::spixel_info* in_spixel_map, 
+    const double* in_max_dist_color, 
+    int* out_idx_img, 
+    gSLICr::Vector2i map_size, 
+    gSLICr::Vector2i img_size, 
+    int spixel_size, float weight, int x, int y, 
+    float max_xy_dist, float max_color_dist, bool slic_zero)
 {
 	int idx_img = y * img_size.x + x;
 
@@ -121,7 +139,7 @@ _CPU_AND_GPU_CODE_ inline void find_center_association_shared(const gSLICr::Vect
 		if (ctr_x_check >= 0 && ctr_y_check >= 0 && ctr_x_check < map_size.x && ctr_y_check < map_size.y)
 		{
 			int ctr_idx = ctr_y_check*map_size.x + ctr_x_check;
-			float cdist = compute_slic_distance(inimg[idx_img], x, y, in_spixel_map[ctr_idx], weight, max_xy_dist, max_color_dist);
+			float cdist = compute_slic_distance(inimg[idx_img], x, y, in_spixel_map[ctr_idx], in_max_dist_color[ctr_idx], weight, max_xy_dist, max_color_dist, slic_zero);
 			if (cdist < dist)
 			{
 				dist = cdist;
@@ -167,10 +185,65 @@ _CPU_AND_GPU_CODE_ inline void finalize_reduction_result_shared(const gSLICr::ob
 		spixel_list[spixel_idx].no_pixels += accum_map[accum_list_idx].no_pixels;
 	}
 
+  // Divide by number of elements per segment to obtain mean
 	if (spixel_list[spixel_idx].no_pixels != 0)
 	{
 		spixel_list[spixel_idx].center /= (float)spixel_list[spixel_idx].no_pixels;
 		spixel_list[spixel_idx].color_info /= (float)spixel_list[spixel_idx].no_pixels;
+	}
+}
+
+_CPU_AND_GPU_CODE_ inline float compute_color_distance(
+    const gSLICr::Vector4f& pix, 
+    const gSLICr::objects::spixel_info& center_info, 
+    float normalizer_color)
+{
+	float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
+				 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
+				 + (pix.z - center_info.color_info.z)*(pix.z - center_info.color_info.z);
+
+  return dcolor * normalizer_color;
+}
+
+
+// Update color distance maxima for each pixel (x,y)
+_CPU_AND_GPU_CODE_ inline void update_color_distance_shared(
+    const gSLICr::Vector4f* inimg, 
+    const gSLICr::objects::spixel_info* in_spixel_map, 
+    const int* in_idx_img, 
+    double* out_max_dist_color, 
+    gSLICr::Vector2i map_size, 
+    gSLICr::Vector2i img_size, 
+    int spixel_size, float weight, int x, int y, 
+    float max_xy_dist, float max_color_dist)
+{
+	int idx_img = y * img_size.x + x;
+
+  int id = in_idx_img[idx_img];
+
+	int ctr_x = x / spixel_size;
+	int ctr_y = y / spixel_size;
+
+	// search 3x3 neighborhood
+	for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++)
+	{
+		int ctr_x_check = ctr_x + j;
+		int ctr_y_check = ctr_y + i;
+
+		if (ctr_x_check >= 0 && ctr_y_check >= 0 
+        && ctr_x_check < map_size.x && ctr_y_check < map_size.y)
+		{
+			int ctr_idx = ctr_y_check*map_size.x + ctr_x_check;
+
+      if (id == in_spixel_map[ctr_idx].id)
+      {
+        float dcolor = compute_color_distance(inimg[idx_img], in_spixel_map[ctr_idx], max_color_dist);
+
+        if (out_max_dist_color[ctr_idx] < dcolor)
+          out_max_dist_color[ctr_idx] = dcolor;
+        break;
+      }
+		}
 	}
 }
 

@@ -15,6 +15,7 @@ namespace gSLICr
 			int no_iters;
 			float coh_weight;			
 			bool do_enforce_connectivity;
+			bool slic_zero;
 
 			COLOR_SPACE color_space;
 			SEG_METHOD seg_method;

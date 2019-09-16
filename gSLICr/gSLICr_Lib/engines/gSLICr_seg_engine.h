@@ -17,6 +17,10 @@ namespace gSLICr
 			float max_color_dist;
 			float max_xy_dist;
 
+			// For Slic_Zero, max_dist_color for each segment
+			bool slic_zero;
+			MaxDistColorMap *max_dist_color;
+
 			// images
 			UChar4Image *source_img;
 			Float4Image *cvt_img;

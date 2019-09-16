@@ -17,6 +17,7 @@ seg_engine::seg_engine(const objects::settings& in_settings)
 
 seg_engine::~seg_engine()
 {
+	if (max_dist_color != NULL) delete max_dist_color;
 	if (source_img != NULL) delete source_img;
 	if (cvt_img != NULL) delete cvt_img;
 	if (idx_img != NULL) delete idx_img;

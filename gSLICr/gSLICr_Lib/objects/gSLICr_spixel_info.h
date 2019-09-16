@@ -10,7 +10,7 @@ namespace gSLICr
 		struct spixel_info
 		{
 			Vector2f center;
-			Vector4f color_info;
+			Vector4f color_info;  // center pixel color
 			int id;
 			int no_pixels;
 		};
