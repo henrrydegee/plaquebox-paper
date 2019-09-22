@@ -64,10 +64,6 @@ namespace gSLICr
 
       const int* data_ptr = seg_mask->GetData(MEMORYDEVICE_UNIFIED);
 
-      std::cout << "20000-20005: " 
-        << data_ptr[20000] << " " << data_ptr[20001] << " " << data_ptr[20002] << " "
-        << data_ptr[20003] << " " << data_ptr[20004] << " " << data_ptr[20005] << std::endl;
-
       return data_ptr;
     }
 
