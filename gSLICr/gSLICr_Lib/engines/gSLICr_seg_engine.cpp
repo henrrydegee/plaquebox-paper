@@ -2,6 +2,7 @@
 
 #pragma once
 #include "gSLICr_seg_engine.h"
+#include <iostream>
 
 using namespace std;
 using namespace gSLICr;
@@ -24,22 +25,36 @@ seg_engine::~seg_engine()
 	if (spixel_map != NULL) delete spixel_map;
 }
 
-void seg_engine::Perform_Segmentation(UChar4Image* in_img)
+void seg_engine::Perform_Segmentation(const unsigned char* in_arr)
 {
-	source_img->SetFrom(in_img, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CUDA);
+	std::cout << "##### Begin segmentating #####" << std::endl;
+	//source_img->SetFrom(in_img, ORUtils::MemoryBlock<unsigned char>::CPU_TO_CUDA);
+	
+	// Fill the input image
+	unsigned char* source_img_ptr = source_img->GetData(MEMORYDEVICE_UNIFIED);
+	
+	for (int y = 0; y < source_img->noDims.y; y++)
+		for (int x = 0; x < source_img->noDims.x; x++)
+		{
+			unsigned int idx = x + y * source_img->noDims.x;
+			source_img_ptr[idx] = in_arr[idx];
+		}
+
 	Cvt_Img_Space(source_img, cvt_img, gSLICr_settings.color_space);
 
-	Init_Cluster_Centers();
+	Init_Cluster_Centers();	
 	Find_Center_Association();
-
+	
 	for (int i = 0; i < gSLICr_settings.no_iters; i++)
 	{
+		std::cout << "### Begining " << i+1 << " / " << gSLICr_settings.no_iters << " iteration ###" << std::endl;
 		Update_Cluster_Center();
 		Find_Center_Association();
+		std::cout << "### Finished " << i+1 << " / " << gSLICr_settings.no_iters << " iteration ###" << std::endl;
 	}
 
 	if(gSLICr_settings.do_enforce_connectivity) Enforce_Connectivity();
-	cudaThreadSynchronize();
+	ORcudaSafeCall(cudaDeviceSynchronize());
 }
 
 

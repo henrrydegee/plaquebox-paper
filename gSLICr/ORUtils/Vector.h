@@ -63,8 +63,9 @@ namespace ORUtils {
 		////////////////////////////////////////////////////////
 		_CPU_AND_GPU_CODE_ Vector2(){} // Default constructor
 		_CPU_AND_GPU_CODE_ Vector2(const T &t) { this->x = t; this->y = t; } // Scalar constructor
-		_CPU_AND_GPU_CODE_ Vector2(const T *tp) { this->x = tp[0]; this->y = tp[1]; } // Construct from array			            
 		_CPU_AND_GPU_CODE_ Vector2(const T v0, const T v1) { this->x = v0; this->y = v1; } // Construct from explicit values
+		_CPU_AND_GPU_CODE_ Vector2(const T *tp) { this->x = tp[0]; this->y = tp[1]; } // Construct from array			            
+
 		_CPU_AND_GPU_CODE_ Vector2(const Vector2_<T> &v) { this->x = v.x; this->y = v.y; }// copy constructor
 
 		_CPU_AND_GPU_CODE_ explicit Vector2(const Vector3_<T> &u)  { this->x = u.x; this->y = u.y; }

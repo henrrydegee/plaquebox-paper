@@ -14,12 +14,12 @@ gSLICr::engines::core_engine::core_engine(const objects::settings& in_settings)
 
 gSLICr::engines::core_engine::~core_engine()
 {
-	delete slic_seg_engine;
+	if (slic_seg_engine != NULL) delete slic_seg_engine;
 }
 
-void gSLICr::engines::core_engine::Process_Frame(UChar4Image* in_img)
+void gSLICr::engines::core_engine::Process_Frame(const unsigned char* in_arr)
 {
-	slic_seg_engine->Perform_Segmentation(in_img);
+	slic_seg_engine->Perform_Segmentation(in_arr);
 }
 
 const IntImage * gSLICr::engines::core_engine::Get_Seg_Res()

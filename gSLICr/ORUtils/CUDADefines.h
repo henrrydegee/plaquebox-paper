@@ -25,6 +25,7 @@
 
 #ifndef ORcudaSafeCall
 #define ORcudaSafeCall(err) ORUtils::__cudaSafeCall(err, __FILE__, __LINE__)
+#define ORcudaSafeCallNoExit(err) ORUtils::__cudaSafeCallNoExit(err, __FILE__, __LINE__)
 
 namespace ORUtils {
 
@@ -34,6 +35,14 @@ inline void __cudaSafeCall( cudaError err, const char *file, const int line )
 		printf("%s(%i) : cudaSafeCall() Runtime API error : %s.\n",
                 file, line, cudaGetErrorString(err) );
         exit(-1);
+    }
+}
+
+inline void __cudaSafeCallNoExit( cudaError err, const char *file, const int line )
+{
+    if( cudaSuccess != err) {
+		printf("%s(%i) : cudaSafeCall() Runtime API error : %s.\n",
+                file, line, cudaGetErrorString(err) );
     }
 }
 

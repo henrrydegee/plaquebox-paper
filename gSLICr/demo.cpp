@@ -46,74 +46,74 @@ void load_image(const gSLICr::UChar4Image* inimg, Mat& outimg)
 
 int main()
 {
-	VideoCapture cap(0);
+//	VideoCapture cap(0);
 
-	if (!cap.isOpened()) 
-	{
-		cerr << "unable to open camera!\n";
-		return -1;
-	}
-	
+//	if (!cap.isOpened()) 
+//	{
+//		cerr << "unable to open camera!\n";
+//		return -1;
+//	}
+//	
 
-	// gSLICr settings
-	gSLICr::objects::settings my_settings;
-	my_settings.img_size.x = 640;
-	my_settings.img_size.y = 480;
-	my_settings.no_segs = 2000;
-	my_settings.spixel_size = 16;
-	my_settings.coh_weight = 0.6f;
-	my_settings.no_iters = 5;
-	my_settings.color_space = gSLICr::CIELAB; // gSLICr::CIELAB for Lab, or gSLICr::RGB for RGB
-	my_settings.seg_method = gSLICr::GIVEN_NUM; // or gSLICr::GIVEN_NUM for given number
-	my_settings.do_enforce_connectivity = true; // whether or not run the enforce connectivity step
-	my_settings.slic_zero = false;
+//	// gSLICr settings
+//	gSLICr::objects::settings my_settings;
+//	my_settings.img_size.x = 640;
+//	my_settings.img_size.y = 480;
+//	my_settings.no_segs = 2000;
+//	my_settings.spixel_size = 16;
+//	my_settings.coh_weight = 0.6f;
+//	my_settings.no_iters = 5;
+//	my_settings.color_space = gSLICr::CIELAB; // gSLICr::CIELAB for Lab, or gSLICr::RGB for RGB
+//	my_settings.seg_method = gSLICr::GIVEN_NUM; // or gSLICr::GIVEN_NUM for given number
+//	my_settings.do_enforce_connectivity = true; // whether or not run the enforce connectivity step
+//	my_settings.slic_zero = false;
 
-	// instantiate a core_engine
-	gSLICr::engines::core_engine* gSLICr_engine = new gSLICr::engines::core_engine(my_settings);
-	
-	// gSLICr takes gSLICr::UChar4Image as input and out put
-	gSLICr::UChar4Image* in_img = new gSLICr::UChar4Image(my_settings.img_size, true, true);
-	gSLICr::UChar4Image* out_img = new gSLICr::UChar4Image(my_settings.img_size, true, true);
+//	// instantiate a core_engine
+//	gSLICr::engines::core_engine* gSLICr_engine = new gSLICr::engines::core_engine(my_settings);
+//	
+//	// gSLICr takes gSLICr::UChar4Image as input and out put
+//	gSLICr::UChar4Image* in_img = new gSLICr::UChar4Image(my_settings.img_size, true, true);
+//	gSLICr::UChar4Image* out_img = new gSLICr::UChar4Image(my_settings.img_size, true, true);
 
-	Size s(my_settings.img_size.x, my_settings.img_size.y);
-	Mat oldFrame, frame;
-	Mat boundry_draw_frame; boundry_draw_frame.create(s, CV_8UC3);
+//	Size s(my_settings.img_size.x, my_settings.img_size.y);
+//	Mat oldFrame, frame;
+//	Mat boundry_draw_frame; boundry_draw_frame.create(s, CV_8UC3);
 
-    StopWatchInterface *my_timer; sdkCreateTimer(&my_timer);
-    
-	int key; int save_count = 0;
-	while (cap.read(oldFrame))
-	{
-		resize(oldFrame, frame, s);
-		
-		load_image(frame, in_img);
-        
-        sdkResetTimer(&my_timer); sdkStartTimer(&my_timer);
-		gSLICr_engine->Process_Frame(in_img);
-        sdkStopTimer(&my_timer); 
-        cout<<"\rsegmentation in:["<<sdkGetTimerValue(&my_timer)<<"]ms"<<flush;
-        
-		gSLICr_engine->Draw_Segmentation_Result(out_img);
-		
-		load_image(out_img, boundry_draw_frame);
-		imshow("segmentation", boundry_draw_frame);
+//    StopWatchInterface *my_timer; sdkCreateTimer(&my_timer);
+//    
+//	int key; int save_count = 0;
+//	while (cap.read(oldFrame))
+//	{
+//		resize(oldFrame, frame, s);
+//		
+//		load_image(frame, in_img);
+//        
+//        sdkResetTimer(&my_timer); sdkStartTimer(&my_timer);
+//		gSLICr_engine->Process_Frame(in_img);
+//        sdkStopTimer(&my_timer); 
+//        cout<<"\rsegmentation in:["<<sdkGetTimerValue(&my_timer)<<"]ms"<<flush;
+//        
+//		gSLICr_engine->Draw_Segmentation_Result(out_img);
+//		
+//		load_image(out_img, boundry_draw_frame);
+//		imshow("segmentation", boundry_draw_frame);
 
-		key = waitKey(1);
-		if (key == 27) break;
-		else if (key == 's')
-		{
-			char out_name[100];
-			sprintf(out_name, "seg_%04i.pgm", save_count);
-			gSLICr_engine->Write_Seg_Res_To_PGM(out_name);
-			sprintf(out_name, "edge_%04i.png", save_count);
-			imwrite(out_name, boundry_draw_frame);
-			sprintf(out_name, "img_%04i.png", save_count);
-			imwrite(out_name, frame);
-			printf("\nsaved segmentation %04i\n", save_count);
-			save_count++;
-		}
-	}
+//		key = waitKey(1);
+//		if (key == 27) break;
+//		else if (key == 's')
+//		{
+//			char out_name[100];
+//			sprintf(out_name, "seg_%04i.pgm", save_count);
+//			gSLICr_engine->Write_Seg_Res_To_PGM(out_name);
+//			sprintf(out_name, "edge_%04i.png", save_count);
+//			imwrite(out_name, boundry_draw_frame);
+//			sprintf(out_name, "img_%04i.png", save_count);
+//			imwrite(out_name, frame);
+//			printf("\nsaved segmentation %04i\n", save_count);
+//			save_count++;
+//		}
+//	}
 
-	destroyAllWindows();
+//	destroyAllWindows();
     return 0;
 }

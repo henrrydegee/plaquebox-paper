@@ -41,6 +41,7 @@ SOURCE_GROUP(engines FILES ${GSLICR_LIB})
 cuda_add_library(gSLICr_lib
 			${GSLICR_LIB}
 			NVTimer.h
+			SHARED
 			OPTIONS -gencode arch=compute_30,code=compute_30)
 target_link_libraries(gSLICr_lib ${CUDA_LIBRARY})
 

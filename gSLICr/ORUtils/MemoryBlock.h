@@ -16,12 +16,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 #endif
 
 #ifndef MEMORY_DEVICE_TYPE
 #define MEMORY_DEVICE_TYPE
-enum MemoryDeviceType { MEMORYDEVICE_CPU, MEMORYDEVICE_CUDA };
+enum MemoryDeviceType { MEMORYDEVICE_CPU, MEMORYDEVICE_CUDA, MEMORYDEVICE_UNIFIED };
 #endif 
 
 namespace ORUtils
@@ -34,13 +35,16 @@ namespace ORUtils
 	{
 	protected:
 #ifndef __METALC__
-		bool isAllocated_CPU, isAllocated_CUDA, isMetalCompatible;
+		bool isAllocated_CPU, isAllocated_CUDA, isAllocated_UNIFIED, isMetalCompatible;
 #endif
 		/** Pointer to memory on CPU host. */
 		DEVICEPTR(T)* data_cpu;
 
 		/** Pointer to memory on GPU, if available. */
 		DEVICEPTR(T)* data_cuda;
+
+		/** Pointer to unified memory, if available. */
+		DEVICEPTR(T)* data_unified;
 
 #ifndef __METALC__
 
@@ -62,6 +66,7 @@ namespace ORUtils
 			{
 			case MEMORYDEVICE_CPU: return data_cpu;
 			case MEMORYDEVICE_CUDA: return data_cuda;
+			case MEMORYDEVICE_UNIFIED: return data_unified;
 			}
 
 			return 0;
@@ -74,6 +79,7 @@ namespace ORUtils
 			{
 			case MEMORYDEVICE_CPU: return data_cpu;
 			case MEMORYDEVICE_CUDA: return data_cuda;
+			case MEMORYDEVICE_UNIFIED: return data_unified;
 			}
 
 			return 0;
@@ -89,13 +95,13 @@ namespace ORUtils
 		on CPU only or GPU only or on both. CPU might also use the
 		Metal compatible allocator (i.e. with 16384 alignment).
 		*/
-		MemoryBlock(size_t dataSize, bool allocate_CPU, bool allocate_CUDA, bool metalCompatible = true)
+		MemoryBlock(size_t dataSize, bool allocate_CPU = false, bool allocate_CUDA = false, bool allocate_UNIFIED = true, bool metalCompatible = true)
 		{
 			this->isAllocated_CPU = false;
 			this->isAllocated_CUDA = false;
+			this->isAllocated_UNIFIED = false;
 			this->isMetalCompatible = false;
-
-			Allocate(dataSize, allocate_CPU, allocate_CUDA, metalCompatible);
+			Allocate(dataSize, allocate_CPU, allocate_CUDA, allocate_UNIFIED, metalCompatible);
 			Clear();
 		}
 
@@ -107,12 +113,14 @@ namespace ORUtils
 		{
 			this->isAllocated_CPU = false;
 			this->isAllocated_CUDA = false;
+			this->isAllocated_UNIFIED = false;
 			this->isMetalCompatible = false;
 
 			switch (memoryType)
 			{
-			case MEMORYDEVICE_CPU: Allocate(dataSize, true, false, true); break;
-			case MEMORYDEVICE_CUDA: Allocate(dataSize, false, true, true); break;
+			case MEMORYDEVICE_CPU: Allocate(dataSize, true, false, false, true); break;
+			case MEMORYDEVICE_CUDA: Allocate(dataSize, false, true, false, true); break;
+			case MEMORYDEVICE_UNIFIED: Allocate(dataSize, false, false, true, true); break;
 			}
 
 			Clear();
@@ -124,6 +132,7 @@ namespace ORUtils
 			if (isAllocated_CPU) memset(data_cpu, defaultValue, dataSize * sizeof(T));
 #ifndef COMPILE_WITHOUT_CUDA
 			if (isAllocated_CUDA) ORcudaSafeCall(cudaMemset(data_cuda, defaultValue, dataSize * sizeof(T)));
+			if (isAllocated_UNIFIED) ORcudaSafeCall(cudaMemset(data_unified, defaultValue, dataSize * sizeof(T)));
 #endif
 		}
 
@@ -170,7 +179,7 @@ namespace ORUtils
 		/** Allocate image data of the specified size. If the
 		data has been allocated before, the data is freed.
 		*/
-		void Allocate(size_t dataSize, bool allocate_CPU, bool allocate_CUDA, bool metalCompatible)
+		void Allocate(size_t dataSize, bool allocate_CPU, bool allocate_CUDA, bool allocate_UNIFIED, bool metalCompatible)
 		{
 			Free();
 
@@ -214,6 +223,15 @@ namespace ORUtils
 				this->isAllocated_CUDA = allocate_CUDA;
 #endif
 			}
+
+			if (allocate_UNIFIED)
+			{
+#ifndef COMPILE_WITHOUT_CUDA
+				ORcudaSafeCall(cudaMallocManaged((void**)&data_unified, dataSize * sizeof(T)));
+				std::cout << "MEM: Allocated " << dataSize << " * " << sizeof(T) << " bytes" << std::endl;
+				this->isAllocated_UNIFIED = allocate_UNIFIED;
+#endif
+			}
 		}
 
 		void Free()
@@ -255,6 +273,15 @@ namespace ORUtils
 				ORcudaSafeCall(cudaFree(data_cuda));
 #endif
 				isAllocated_CUDA = false;
+			}
+
+			if (isAllocated_UNIFIED)
+			{
+#ifndef COMPILE_WITHOUT_CUDA
+				ORcudaSafeCall(cudaFree(data_unified));
+				std::cout << "MEM: Freed " << dataSize << " * " << sizeof(T) << " bytes" << std::endl;
+#endif
+				isAllocated_UNIFIED = false;
 			}
 		}
 

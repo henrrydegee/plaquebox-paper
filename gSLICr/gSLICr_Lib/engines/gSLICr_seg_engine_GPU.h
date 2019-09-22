@@ -16,7 +16,7 @@ namespace gSLICr
 			IntImage* tmp_idx_img;
 
 		protected:
-			void Cvt_Img_Space(UChar4Image* inimg, Float4Image* outimg, COLOR_SPACE color_space);
+			void Cvt_Img_Space(UCharImage* inimg, Float3Image* outimg, COLOR_SPACE color_space);
 			void Init_Cluster_Centers();
 			void Find_Center_Association();
 			void Update_Cluster_Center();
