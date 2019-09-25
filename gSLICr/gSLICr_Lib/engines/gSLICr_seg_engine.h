@@ -23,7 +23,8 @@ namespace gSLICr
 
 			// images
 			UCharImage *source_img;
-			Float3Image *cvt_img;
+			//Float3Image *cvt_img;
+			FloatImage *cvt_img;
 			IntImage *idx_img;
 
 			// superpixel map
@@ -32,7 +33,7 @@ namespace gSLICr
 
 			objects::settings gSLICr_settings;
 
-			virtual void Cvt_Img_Space(UCharImage* inimg, Float3Image* outimg, COLOR_SPACE color_space) = 0;
+			virtual void Cvt_Img_Space(UCharImage* inimg, FloatImage* outimg, COLOR_SPACE color_space) = 0;
 			virtual void Init_Cluster_Centers() = 0;
 			virtual void Find_Center_Association() = 0;
 			virtual void Update_Cluster_Center() = 0;
@@ -46,6 +47,11 @@ namespace gSLICr
 			const IntImage* Get_Seg_Mask() const {
 				//idx_img->UpdateHostFromDevice();
 				return idx_img;
+			};
+
+			const UCharImage* Get_Orig_Img() const {
+				//idx_img->UpdateHostFromDevice();
+				return source_img;
 			};
 
 			//void Perform_Segmentation(UCharImage* in_img);

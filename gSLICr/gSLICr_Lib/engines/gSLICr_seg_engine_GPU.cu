@@ -18,19 +18,19 @@ using namespace gSLICr::engines;
 //
 // ----------------------------------------------------
 
-__global__ void Cvt_Img_Space_device(const unsigned char* inimg, Vector3f* outimg, Vector2i img_size, COLOR_SPACE color_space);
+__global__ void Cvt_Img_Space_device(const unsigned char* inimg, float* outimg, Vector2i img_size, COLOR_SPACE color_space);
 
 __global__ void Enforce_Connectivity_device(const int* in_idx_img, int* out_idx_img, Vector2i img_size);
 
-__global__ void Init_Cluster_Centers_device(const Vector3f* inimg, spixel_info* out_spixel, Vector2i map_size, Vector2i img_size, unsigned int spixel_size);
+__global__ void Init_Cluster_Centers_device(const float* inimg, spixel_info* out_spixel, Vector2i map_size, Vector2i img_size, unsigned int spixel_size);
 
-__global__ void Find_Center_Association_device(const Vector3f* inimg, const spixel_info* in_spixel_map, const double* in_max_dist_color, int* out_idx_img, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist, bool slic_zero);
+__global__ void Find_Center_Association_device(const float* inimg, const spixel_info* in_spixel_map, const float* in_max_dist_color, int* out_idx_img, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist, bool slic_zero);
 
-__global__ void Update_Cluster_Center_device(const Vector3f* inimg, const int* in_idx_img, spixel_info* accum_map, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, int no_blocks_per_line);
+__global__ void Update_Cluster_Center_device(const float* inimg, const int* in_idx_img, spixel_info* accum_map, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, int no_blocks_per_line);
 
 __global__ void Finalize_Reduction_Result_device(const spixel_info* accum_map, spixel_info* spixel_list, Vector2i map_size, int no_blocks_per_spixel);
 
-__global__ void Update_Color_Distance_device(const Vector3f* inimg, const spixel_info* in_spixel_map, const int* in_idx_img, double* out_max_dist_color, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist);
+__global__ void Update_Color_Distance_device(const float* inimg, const spixel_info* in_spixel_map, const int* in_idx_img, float* out_max_dist_color, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist);
 
 __global__ void Draw_Segmentation_Result_device(const int* idx_img, unsigned char* sourceimg, Vector4u* outimg, Vector2i img_size);
 
@@ -44,7 +44,7 @@ seg_engine_GPU::seg_engine_GPU(const settings& in_settings) : seg_engine(in_sett
 {
 	source_img = new UCharImage(in_settings.img_size);
 	std::cout << "Created source_img" << std::endl;
-	cvt_img = new Float3Image(in_settings.img_size);
+	cvt_img = new FloatImage(in_settings.img_size);
 	std::cout << "Created cvt_img" << std::endl;
 	idx_img = new IntImage(in_settings.img_size);
 	std::cout << "Created idx_img" << std::endl;
@@ -74,7 +74,7 @@ seg_engine_GPU::seg_engine_GPU(const settings& in_settings) : seg_engine(in_sett
 	// Create max_dist_color for each segment and initialize to 1.0
 	slic_zero = in_settings.slic_zero;
 	max_dist_color = new MaxDistColorMap(map_size);
-	double* max_dist_color_ptr = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
+	float* max_dist_color_ptr = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
 	
 	for (unsigned int i = 0; i < spixel_per_col*spixel_per_row; i++)
 		max_dist_color_ptr[i] = 1.0;
@@ -115,23 +115,23 @@ gSLICr::engines::seg_engine_GPU::~seg_engine_GPU()
 }
 
 
-void gSLICr::engines::seg_engine_GPU::Cvt_Img_Space(UCharImage* inimg, Float3Image* outimg, COLOR_SPACE color_space)
+void gSLICr::engines::seg_engine_GPU::Cvt_Img_Space(UCharImage* inimg, FloatImage* outimg, COLOR_SPACE color_space)
 {
 	unsigned char* inimg_ptr = inimg->GetData(MEMORYDEVICE_UNIFIED);
-	Vector3f* outimg_ptr = outimg->GetData(MEMORYDEVICE_UNIFIED);
+	float* outimg_ptr = outimg->GetData(MEMORYDEVICE_UNIFIED);
 	Vector2i img_size = inimg->noDims;
 
 	dim3 blockSize(BLOCK_DIM, BLOCK_DIM);
 	dim3 gridSize((int)ceil((float)img_size.x / (float)blockSize.x), (int)ceil((float)img_size.y / (float)blockSize.y));
 
-	Cvt_Img_Space_device << <gridSize, blockSize >> >(inimg_ptr, outimg_ptr, img_size, color_space);
+	Cvt_Img_Space_device<<<gridSize, blockSize>>>(inimg_ptr, outimg_ptr, img_size, color_space);
 	ORcudaSafeCall(cudaDeviceSynchronize());
 }
 
 void gSLICr::engines::seg_engine_GPU::Init_Cluster_Centers()
 {
 	spixel_info* spixel_list = spixel_map->GetData(MEMORYDEVICE_UNIFIED);
-	Vector3f* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
+	float* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
 	
 	Vector2i map_size = spixel_map->noDims;
 	Vector2i img_size = cvt_img->noDims;
@@ -139,15 +139,15 @@ void gSLICr::engines::seg_engine_GPU::Init_Cluster_Centers()
 	dim3 blockSize(BLOCK_DIM, BLOCK_DIM);
 	dim3 gridSize((int)ceil((float)map_size.x / (float)blockSize.x), (int)ceil((float)map_size.y / (float)blockSize.y));
 
-	Init_Cluster_Centers_device << <gridSize, blockSize >> >(img_ptr, spixel_list, map_size, img_size, spixel_size);
+	Init_Cluster_Centers_device<<<gridSize, blockSize>>>(img_ptr, spixel_list, map_size, img_size, spixel_size);
 	ORcudaSafeCall(cudaDeviceSynchronize());
 }
 
 void gSLICr::engines::seg_engine_GPU::Find_Center_Association()
 {
 	spixel_info* spixel_list = spixel_map->GetData(MEMORYDEVICE_UNIFIED);
-	Vector3f* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
-	double* in_max_dist_color = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
+	float* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
+	float* in_max_dist_color = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
 	int* idx_ptr = idx_img->GetData(MEMORYDEVICE_UNIFIED);
 
 	Vector2i map_size = spixel_map->noDims;
@@ -156,7 +156,7 @@ void gSLICr::engines::seg_engine_GPU::Find_Center_Association()
 	dim3 blockSize(BLOCK_DIM, BLOCK_DIM);
 	dim3 gridSize((int)ceil((float)img_size.x / (float)blockSize.x), (int)ceil((float)img_size.y / (float)blockSize.y));
 
-	Find_Center_Association_device << <gridSize, blockSize >> >(img_ptr, spixel_list, in_max_dist_color, idx_ptr, map_size, img_size, spixel_size, gSLICr_settings.coh_weight,max_xy_dist,max_color_dist,slic_zero);
+	Find_Center_Association_device<<<gridSize, blockSize>>>(img_ptr, spixel_list, in_max_dist_color, idx_ptr, map_size, img_size, spixel_size, gSLICr_settings.coh_weight,max_xy_dist,max_color_dist,slic_zero);
 	ORcudaSafeCall(cudaDeviceSynchronize());
 }
 
@@ -164,8 +164,8 @@ void gSLICr::engines::seg_engine_GPU::Update_Cluster_Center()
 {
 	spixel_info* accum_map_ptr = accum_map->GetData(MEMORYDEVICE_UNIFIED);
 	spixel_info* spixel_list_ptr = spixel_map->GetData(MEMORYDEVICE_UNIFIED);
-	Vector3f* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
-	double* out_max_dist_color = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
+	float* img_ptr = cvt_img->GetData(MEMORYDEVICE_UNIFIED);
+	float* out_max_dist_color = max_dist_color->GetData(MEMORYDEVICE_UNIFIED);
 	int* idx_ptr = idx_img->GetData(MEMORYDEVICE_UNIFIED);
 
 	Vector2i map_size = spixel_map->noDims;
@@ -187,7 +187,7 @@ void gSLICr::engines::seg_engine_GPU::Update_Cluster_Center()
 	if (slic_zero)
 	{
 		dim3 gridSize3((int)ceil((float)img_size.x / (float)blockSize.x), (int)ceil((float)img_size.y / (float)blockSize.y));
-		Update_Color_Distance_device << <gridSize3, blockSize >> >(img_ptr, spixel_list_ptr, idx_ptr, out_max_dist_color, map_size, img_size, spixel_size, gSLICr_settings.coh_weight,max_xy_dist,max_color_dist);
+		Update_Color_Distance_device<<<gridSize3, blockSize>>>(img_ptr, spixel_list_ptr, idx_ptr, out_max_dist_color, map_size, img_size, spixel_size, gSLICr_settings.coh_weight,max_xy_dist,max_color_dist);
 		ORcudaSafeCall(cudaDeviceSynchronize());
 	}
 }
@@ -201,9 +201,9 @@ void gSLICr::engines::seg_engine_GPU::Enforce_Connectivity()
 	dim3 blockSize(BLOCK_DIM, BLOCK_DIM);
 	dim3 gridSize((int)ceil((float)img_size.x / (float)blockSize.x), (int)ceil((float)img_size.y / (float)blockSize.y));
 
-	Enforce_Connectivity_device << <gridSize, blockSize >> >(idx_ptr, tmp_idx_ptr, img_size);
+	Enforce_Connectivity_device<<<gridSize, blockSize>>>(idx_ptr, tmp_idx_ptr, img_size);
 	ORcudaSafeCall(cudaDeviceSynchronize());
-	Enforce_Connectivity_device << <gridSize, blockSize >> >(tmp_idx_ptr, idx_ptr, img_size);
+	Enforce_Connectivity_device<<<gridSize, blockSize>>>(tmp_idx_ptr, idx_ptr, img_size);
 	ORcudaSafeCall(cudaDeviceSynchronize());
 }
 
@@ -231,7 +231,7 @@ void gSLICr::engines::seg_engine_GPU::Draw_Segmentation_Result(UChar4Image* out_
 //
 // ----------------------------------------------------
 
-__global__ void Cvt_Img_Space_device(const unsigned char* inimg, Vector3f* outimg, Vector2i img_size, COLOR_SPACE color_space)
+__global__ void Cvt_Img_Space_device(const unsigned char* inimg, float* outimg, Vector2i img_size, COLOR_SPACE color_space)
 {
 	int x = threadIdx.x + blockIdx.x * blockDim.x, y = threadIdx.y + blockIdx.y * blockDim.y;
 	if (x > img_size.x - 1 || y > img_size.y - 1) return;
@@ -248,7 +248,7 @@ __global__ void Draw_Segmentation_Result_device(const int* idx_img, unsigned cha
 	draw_superpixel_boundry_shared(idx_img, sourceimg, outimg, img_size, x, y);
 }
 
-__global__ void Init_Cluster_Centers_device(const Vector3f* inimg, spixel_info* out_spixel, Vector2i map_size, Vector2i img_size, unsigned int spixel_size)
+__global__ void Init_Cluster_Centers_device(const float* inimg, spixel_info* out_spixel, Vector2i map_size, Vector2i img_size, unsigned int spixel_size)
 {
 	int x = threadIdx.x + blockIdx.x * blockDim.x, y = threadIdx.y + blockIdx.y * blockDim.y;
 	if (x > map_size.x - 1 || y > map_size.y - 1) return;
@@ -256,7 +256,7 @@ __global__ void Init_Cluster_Centers_device(const Vector3f* inimg, spixel_info* 
 	init_cluster_centers_shared(inimg, out_spixel, map_size, img_size, spixel_size, x, y);
 }
 
-__global__ void Find_Center_Association_device(const Vector3f* inimg, const spixel_info* in_spixel_map, const double* in_max_dist_color, int* out_idx_img, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist, bool slic_zero)
+__global__ void Find_Center_Association_device(const float* inimg, const spixel_info* in_spixel_map, const float* in_max_dist_color, int* out_idx_img, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist, bool slic_zero)
 {
 	int x = threadIdx.x + blockIdx.x * blockDim.x, y = threadIdx.y + blockIdx.y * blockDim.y;
 	if (x > img_size.x - 1 || y > img_size.y - 1) return;
@@ -264,16 +264,16 @@ __global__ void Find_Center_Association_device(const Vector3f* inimg, const spix
 	find_center_association_shared(inimg, in_spixel_map, in_max_dist_color, out_idx_img, map_size, img_size, spixel_size, weight, x, y,max_xy_dist,max_color_dist,slic_zero);
 }
 
-__global__ void Update_Cluster_Center_device(const Vector3f* inimg, const int* in_idx_img, spixel_info* accum_map, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, int no_blocks_per_line)
+__global__ void Update_Cluster_Center_device(const float* inimg, const int* in_idx_img, spixel_info* accum_map, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, int no_blocks_per_line)
 {
 	int local_id = threadIdx.y * blockDim.x + threadIdx.x;
 
-	__shared__ Vector3f color_shared[BLOCK_DIM*BLOCK_DIM];
+	__shared__ float color_shared[BLOCK_DIM*BLOCK_DIM];
 	__shared__ Vector2f xy_shared[BLOCK_DIM*BLOCK_DIM];
 	__shared__ int count_shared[BLOCK_DIM*BLOCK_DIM];
 	__shared__ bool should_add; 
 
-	color_shared[local_id] = Vector3f(0, 0, 0);
+	color_shared[local_id] = 0.0;
 	xy_shared[local_id] = Vector2f(0, 0);
 	count_shared[local_id] = 0;
 	should_add = false;
@@ -366,7 +366,7 @@ __global__ void Update_Cluster_Center_device(const Vector3f* inimg, const int* i
 	}
 }
 
-__global__ void Update_Color_Distance_device(const Vector3f* inimg, const spixel_info* in_spixel_map, const int* in_idx_img, double* out_max_dist_color, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist)
+__global__ void Update_Color_Distance_device(const float* inimg, const spixel_info* in_spixel_map, const int* in_idx_img, float* out_max_dist_color, Vector2i map_size, Vector2i img_size, unsigned int spixel_size, float weight, float max_xy_dist, float max_color_dist)
 {
 	int x = threadIdx.x + blockIdx.x * blockDim.x, y = threadIdx.y + blockIdx.y * blockDim.y;
 	if (x > img_size.x - 1 || y > img_size.y - 1) return;

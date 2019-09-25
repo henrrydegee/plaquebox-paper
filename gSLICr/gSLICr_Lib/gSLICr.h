@@ -25,6 +25,7 @@ namespace gSLICr
         << "               Settings for gSLICr               " << std::endl
         << "    Image size: (h, w) = (y, x) = (" << in_settings.img_size.y << ", " << in_settings.img_size.x << ")" << std::endl
         << "    Number of superpixels: " << in_settings.no_segs << std::endl
+        << "    Number of iterations: " << in_settings.no_iters << std::endl
         << "    Compactness weight: " << in_settings.coh_weight << std::endl
         << "    Enforce connectivity: " << ((1==in_settings.do_enforce_connectivity) ? "True" : "False") << std::endl
         << "    SLIC_zero: " << ((1==in_settings.slic_zero) ? "True" : "False") << std::endl
@@ -65,6 +66,12 @@ namespace gSLICr
       const int* data_ptr = seg_mask->GetData(MEMORYDEVICE_UNIFIED);
 
       return data_ptr;
+    }
+
+    const unsigned char* get_orig_img() {
+      const UCharImage* orig_img = gSLICr_engine->Get_Orig_Img();
+      const unsigned char* orig_img_ptr = orig_img->GetData(MEMORYDEVICE_UNIFIED);
+      return orig_img_ptr;
     }
 
     ~Run_SLIC() {

@@ -16,7 +16,7 @@
 //------------------------------------------------------
 
 #ifndef BLOCK_DIM
-#define BLOCK_DIM		16
+#define BLOCK_DIM		32
 #endif
 
 namespace gSLICr
@@ -60,10 +60,11 @@ namespace gSLICr
 
 	typedef  ORUtils::Image<Vector4f> Float4Image;
 	typedef  ORUtils::Image<Vector3f> Float3Image;
+	typedef  ORUtils::Image<float> FloatImage;
 	typedef  ORUtils::Image<int> IntImage;
 	typedef  ORUtils::Image<Vector4u> UChar4Image;
 	typedef  ORUtils::Image<unsigned char> UCharImage;
-	typedef  ORUtils::Image<double> MaxDistColorMap;
+	typedef  ORUtils::Image<float> MaxDistColorMap;
 
 	//------------------------------------------------------
 	// 

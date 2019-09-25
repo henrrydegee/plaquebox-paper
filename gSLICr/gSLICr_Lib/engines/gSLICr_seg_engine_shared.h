@@ -1,6 +1,7 @@
 // Copyright 2014-2015 Isis Innovation Limited and the authors of gSLICr
 
 #pragma once
+#include <cfloat>
 #include "../gSLICr_defines.h"
 #include "../objects/gSLICr_spixel_info.h"
 
@@ -50,40 +51,41 @@ _CPU_AND_GPU_CODE_ inline void rgb2CIELab(const gSLICr::Vector4u& pix_in, gSLICr
 	pix_out.z = 200.0f*(fy - fz);
 }
 
-_CPU_AND_GPU_CODE_ inline void cvt_img_space_shared(const unsigned char* inimg, gSLICr::Vector3f* outimg, const gSLICr::Vector2i& img_size, int x, int y, const gSLICr::COLOR_SPACE& color_space)
+_CPU_AND_GPU_CODE_ inline void cvt_img_space_shared(const unsigned char* inimg, float* outimg, const gSLICr::Vector2i& img_size, int x, int y, const gSLICr::COLOR_SPACE& color_space)
 {
 	unsigned int idx = (unsigned int)y * (unsigned int)img_size.x + (unsigned int)x;
 
 	switch (color_space)
 	{
 	case gSLICr::RGB:
-		outimg[idx].x = inimg[idx];
-		outimg[idx].y = inimg[idx];
-		outimg[idx].z = inimg[idx];
+		outimg[idx] = inimg[idx];
+		//outimg[idx].x = inimg[idx];
+		//outimg[idx].y = inimg[idx];
+		//outimg[idx].z = inimg[idx];
 		break;
 	case gSLICr::XYZ:
-		rgb2xyz(inimg[idx], outimg[idx]);
+		outimg[idx] = inimg[idx];
+		//rgb2xyz(inimg[idx], outimg[idx]);
 		break;
 	case gSLICr::CIELAB:
-		rgb2CIELab(inimg[idx], outimg[idx]);
+		outimg[idx] = inimg[idx];
+		//rgb2CIELab(inimg[idx], outimg[idx]);
 		break;
 	case gSLICr::GRAY:
-		outimg[idx].x = inimg[idx];
-		outimg[idx].y = 0.0;
-		outimg[idx].z = 0.0;
+		outimg[idx] = inimg[idx];
 		break;
 	}
 }
 
-_CPU_AND_GPU_CODE_ inline void init_cluster_centers_shared(const gSLICr::Vector3f* inimg, gSLICr::objects::spixel_info* out_spixel, gSLICr::Vector2i map_size, gSLICr::Vector2i img_size, unsigned int spixel_size, int x, int y)
+_CPU_AND_GPU_CODE_ inline void init_cluster_centers_shared(const float* inimg, gSLICr::objects::spixel_info* out_spixel, gSLICr::Vector2i map_size, gSLICr::Vector2i img_size, unsigned int spixel_size, int x, int y)
 {
 	unsigned int cluster_idx = y * (unsigned int)map_size.x + x;
 
-	int img_x = x * spixel_size + spixel_size / 2;
-	int img_y = y * spixel_size + spixel_size / 2;
+	unsigned int img_x = x * spixel_size + spixel_size / 2;
+	unsigned int img_y = y * spixel_size + spixel_size / 2;
 
-	img_x = img_x >= img_size.x ? (x * spixel_size + img_size.x) / 2 : img_x;
-	img_y = img_y >= img_size.y ? (y * spixel_size + img_size.y) / 2 : img_y;
+	img_x = (img_x >= img_size.x ? (x * spixel_size + img_size.x) / 2 : img_x);
+	img_y = (img_y >= img_size.y ? (y * spixel_size + img_size.y) / 2 : img_y);
 
 	// TODO: go one step towards gradients direction
 
@@ -94,15 +96,17 @@ _CPU_AND_GPU_CODE_ inline void init_cluster_centers_shared(const gSLICr::Vector3
 }
 
 _CPU_AND_GPU_CODE_ inline float compute_slic_distance(
-    const gSLICr::Vector3f& pix, 
+    const float& pix, 
     int x, int y, 
     const gSLICr::objects::spixel_info& center_info, 
-    const double& in_max_dist_color, 
+    const float& in_max_dist_color, 
     float weight, float normalizer_xy, float normalizer_color, bool slic_zero)
 {
-	float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
-				 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
-				 + (pix.z - center_info.color_info.z)*(pix.z - center_info.color_info.z);
+	//float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
+	//			 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
+	//			 + (pix.z - center_info.color_info.z)*(pix.z - center_info.color_info.z);
+
+	float dcolor = (pix - center_info.color_info)*(pix - center_info.color_info);
 
 	float dxy = (x - center_info.center.x) * (x - center_info.center.x)
 			  + (y - center_info.center.y) * (y - center_info.center.y);
@@ -118,9 +122,9 @@ _CPU_AND_GPU_CODE_ inline float compute_slic_distance(
 
 // Find which center pixel (x,y) belongs to
 _CPU_AND_GPU_CODE_ inline void find_center_association_shared(
-    const gSLICr::Vector3f* inimg, 
+    const float* inimg, 
     const gSLICr::objects::spixel_info* in_spixel_map, 
-    const double* in_max_dist_color, 
+    const float* in_max_dist_color, 
     int* out_idx_img, 
     gSLICr::Vector2i map_size, 
     gSLICr::Vector2i img_size, 
@@ -133,7 +137,8 @@ _CPU_AND_GPU_CODE_ inline void find_center_association_shared(
 	int ctr_y = y / spixel_size;
 
 	int minidx = -1;
-	float dist = 999999.9999f;
+	//float dist = 999999.9999f;
+	float dist = FLT_MAX;
 
 	// search 3x3 neighborhood
 	for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++)
@@ -178,7 +183,7 @@ _CPU_AND_GPU_CODE_ inline void finalize_reduction_result_shared(const gSLICr::ob
 	unsigned int spixel_idx = y * (unsigned int)map_size.x + x;
 
 	spixel_list[spixel_idx].center = gSLICr::Vector2f(0, 0);
-	spixel_list[spixel_idx].color_info = gSLICr::Vector3f(0, 0, 0);
+	spixel_list[spixel_idx].color_info = 0.0;
 	spixel_list[spixel_idx].no_pixels = 0;
 
 	for (int i = 0; i < no_blocks_per_spixel; i++)
@@ -199,13 +204,15 @@ _CPU_AND_GPU_CODE_ inline void finalize_reduction_result_shared(const gSLICr::ob
 }
 
 _CPU_AND_GPU_CODE_ inline float compute_color_distance(
-    const gSLICr::Vector3f& pix, 
+    const float& pix, 
     const gSLICr::objects::spixel_info& center_info, 
     float normalizer_color)
 {
-	float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
-				 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
-				 + (pix.z - center_info.color_info.z)*(pix.z - center_info.color_info.z);
+	//float dcolor = (pix.x - center_info.color_info.x)*(pix.x - center_info.color_info.x)
+	//			 + (pix.y - center_info.color_info.y)*(pix.y - center_info.color_info.y)
+	//			 + (pix.z - center_info.color_info.z)*(pix.z - center_info.color_info.z);
+
+	float dcolor = (pix - center_info.color_info)*(pix - center_info.color_info);
 
   return dcolor * normalizer_color;
 }
@@ -213,10 +220,10 @@ _CPU_AND_GPU_CODE_ inline float compute_color_distance(
 
 // Update color distance maxima for each pixel (x,y)
 _CPU_AND_GPU_CODE_ inline void update_color_distance_shared(
-    const gSLICr::Vector3f* inimg, 
+    const float* inimg, 
     const gSLICr::objects::spixel_info* in_spixel_map, 
     const int* in_idx_img, 
-    double* out_max_dist_color, 
+    float* out_max_dist_color, 
     gSLICr::Vector2i map_size, 
     gSLICr::Vector2i img_size, 
     unsigned int spixel_size, float weight, int x, int y, 

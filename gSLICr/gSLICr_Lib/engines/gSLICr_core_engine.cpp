@@ -27,6 +27,11 @@ const IntImage * gSLICr::engines::core_engine::Get_Seg_Res()
 	return slic_seg_engine->Get_Seg_Mask();
 }
 
+const UCharImage * gSLICr::engines::core_engine::Get_Orig_Img()
+{
+	return slic_seg_engine->Get_Orig_Img();
+}
+
 void gSLICr::engines::core_engine::Draw_Segmentation_Result(UChar4Image* out_img)
 {
 	slic_seg_engine->Draw_Segmentation_Result(out_img);

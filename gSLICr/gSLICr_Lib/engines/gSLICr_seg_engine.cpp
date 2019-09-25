@@ -36,7 +36,7 @@ void seg_engine::Perform_Segmentation(const unsigned char* in_arr)
 	for (int y = 0; y < source_img->noDims.y; y++)
 		for (int x = 0; x < source_img->noDims.x; x++)
 		{
-			unsigned int idx = x + y * source_img->noDims.x;
+			unsigned int idx = x + y * (unsigned int)source_img->noDims.x;
 			source_img_ptr[idx] = in_arr[idx];
 		}
 

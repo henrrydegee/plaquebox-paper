@@ -25,6 +25,7 @@ namespace gSLICr
 
 			// Function to get the pointer to the segmented mask image
 			const IntImage * Get_Seg_Res();
+			const UCharImage * Get_Orig_Img();
 
 			// Function to draw segmentation result on out_img
 			void Draw_Segmentation_Result(UChar4Image* out_img);
