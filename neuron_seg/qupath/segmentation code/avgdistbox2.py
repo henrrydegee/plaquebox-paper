@@ -3,6 +3,7 @@ import math
 import time
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.spatial import distance_matrix
 from PIL import Image
 
 # load data into the program, store all the coordinates
@@ -22,7 +23,9 @@ with open('cell_wo_residue.csv') as csvfile:
     print("time estimates to load the csv file: %s seconds" % (load_time-start_time))
     x_list = [i[0] for i in coords]
     y_list = [i[1] for i in coords]
-    datapoints = np.zeros((int(max(x_list))+1, int(max(y_list))+1), dtype='uint8')
+    height = int(max(x_list))+1
+    width = int(max(y_list))+1
+    datapoints = np.zeros((height, width), dtype='uint8')
     ini_data = time.time()
     print("time estimates to initialize data plane: %s seconds" % (ini_data-load_time))
     for x, y in coords:
@@ -32,29 +35,34 @@ with open('cell_wo_residue.csv') as csvfile:
     print(datapoints)
 
     feature_vec= []
+    #create distance matrix to improve efficiency
+    temp = np.zeros((101,101))
+    x, y = np.where(temp==0)
+    dist_matrix = distance_matrix(np.dstack((x,y))[0], [[101, 101]])
+    dist_matrix = dist_matrix.flatten()
     for x, y in coords:
-        start_epoach = time.time()
-        # Create a box shape 501*801, center is (250, 400)
-        box_coords = datapoints[int(x)-150:int(x)+151, int(y)-150:int(y)+151]
-        print("current coordinates: ", (x,y))
-        #print("box matrix: ", box_coords)
-        #print("width, height", (box_coords.shape[0],box_coords.shape[1]))
-        #print(np.where(box_coords == 1))
-        points = np.array(list(zip(np.where(box_coords == 1)[0], np.where(box_coords == 1)[1])))
-        box_dist = []
-        points_count = 0
-        #print(points)
-        for box_x, box_y in points:
-            dist = math.sqrt(math.pow(box_x-150,2) + math.pow(box_y-150,2))
-            box_dist.append(dist)
-            points_count += 1
-        dist_sorted = sorted(box_dist)
-        # compute average distance of closet 50  points
-        feature_vec.append([x, y, sum(dist_sorted[0:21])/20, points_count]) # transform each coordinate to be a feature vector
-        print("time estimates to compute current epoach of feature vectors: %s seconds" % (time.time() - start_epoach))
-        print()
+        if (int(x)>=50) and (int(x)<height-50) and (int(y)>=50) and (int(y) < width-50):
+            start_epoach = time.time()
+            # Create a box shape 301*301, center is (150,150)
+            box_coords = datapoints[int(x)-50:int(x)+51, int(y)-50:int(y)+51]
+            print("current coordinates: ", (x,y))
+            # count all the points in the local region
+            points_count = np.sum(box_coords)
+            # calculate distance to the center for all the points in the local region
+            box_dist = box_coords.flatten()*dist_matrix
+            # calculate the standard deviation for all the distances
+            #dist_sorted = sorted(box_dist)
+            std = np.std(np.trim_zeros(box_dist))
+            # compute average distance of all the points in the local region
+            avg_dist = sum(box_dist)/points_count
+            print("average distance: ", avg_dist)
 
-    with open("feature_vec_whole_20.csv","w", newline="") as f:
+            print("std: ", std)
+            feature_vec.append([x, y, avg_dist, points_count, std]) # transform each coordinate to be a feature vector
+            print("time estimates to compute current epoach of feature vectors: %s seconds" % (time.time() - start_epoach))
+            print()
+
+    with open("feature_vec_cell_wo_residue.csv","w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(feature_vec)
     print("total time in running this window based operation to compute feature vector: %s seconds" % (time.time() - start_time))
