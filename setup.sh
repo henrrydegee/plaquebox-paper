@@ -1,5 +1,6 @@
 #!/bin/bash 
-# Ensure that you have installed nvidia-docker and the latest nvidia graphics driver on host!
+# Ensure that you have installed docker and the latest nvidia graphics driver on host!
+# docker outdated, use docker --gpu instead
 
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
@@ -7,7 +8,7 @@ IMGNAME="plaquebox"
 CONTNAME="plaquebox"
 DOCKERFILEPATH="./docker/Dockerfile"
 REPONAME="plaquebox-paper"
-JUPYTERPORT="9000"
+JUPYTERPORT="3366"
 cd "$SCRIPTPATH"
 
 test_retval() {
@@ -64,20 +65,16 @@ echo -e "#######################################################################
 echo -e "\n$USAGE\n"
 
 # Get user info
-echo -e "Please identify yourself.\n\t0 - Kolin, 1 - Jeff, 2 - Wenda"
+echo -e "Please identify yourself.\n\t0 - Henrry, 1 - Jeff"
 read user
 if [ "$user" = "0" ] ; then
 	CONTNAME+="-kolin"
-	JUPYTERPORT="9000"
-	echo -e "Welcome, Kolin. Please use port 9000.\n"
+	JUPYTERPORT="3366"
+	echo -e "Welcome, Kolin. Please use port 3366.\n"
 elif [ "$user" = "1" ] ; then
 	CONTNAME+="-jeff"
 	JUPYTERPORT="9001"
 	echo -e "Welcome, Jeff. Please use port 9001.\n"
-elif [ "$user" = "2" ] ; then
-	CONTNAME+="-wenda"
-	JUPYTERPORT="9002"
-	echo -e "Welcome, Wenda. Please use port 9002.\n"
 else
 	echo -e "Wrong input... Exiting...\n"
 	exit 1
@@ -89,31 +86,31 @@ sleep 5
 # Remove previously built Docker image
 if [ "$REMOVEPREVDOCKERIMAGE" = true ] ; then
         echo -e "\nRemoving previously built image..."
-        nvidia-docker rmi -f $IMGNAME
+        docker rmi -f $IMGNAME
 fi
 
 # Build and run the image
 echo -e "\nBuilding image $IMGNAME..."
-nvidia-docker build $REMOVEIMDDOCKERCONTAINERCMD -f $DOCKERFILEPATH -t $IMGNAME .
+docker build $REMOVEIMDDOCKERCONTAINERCMD -f $DOCKERFILEPATH -t $IMGNAME .
 test_retval "build Docker image $IMGNAME"
 
 # Build a container from the image
 echo -e "\nRemoving older container $CONTNAME..."
 if [ 1 -eq $(docker container ls -a | grep "$CONTNAME$" | wc -l) ] ; then
-	nvidia-docker rm -f $CONTNAME
+	docker rm -f $CONTNAME
 fi
 
 echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
-nvidia-docker create -it --name=$CONTNAME \
+docker create -it --name=$CONTNAME --gpus=all \
 	-v "$SCRIPTPATH":/root/$REPONAME \
-	-v "/home/kolinguo/plaquebox-data/box":"/root/$REPONAME/data/box" \
-	-v "/home/kolinguo/plaquebox-data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
-	-v "/home/kolinguo/plaquebox-data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
-	-v "/home/kolinguo/plaquebox-data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
-	-v "/home/kolinguo/plaquebox-data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
-	-v "/home/kolinguo/plaquebox-data/tiles":"/root/$REPONAME/data/tiles" \
-	-v "/home/kolinguo/plaquebox-data/zips":"/root/$REPONAME/data/zips" \
-	-v "/home/kolinguo/plaquebox-data/outputs":"/root/$REPONAME/data/outputs" \
+	-v "/home/hgunawan/plaquebox-data/box":"/root/$REPONAME/data/box" \
+	-v "/home/hgunawan/plaquebox-data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
+	-v "/home/hgunawan/plaquebox-data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
+	-v "/home/hgunawan/plaquebox-data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
+	-v "/home/hgunawan/plaquebox-data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
+	-v "/home/hgunawan/plaquebox-data/tiles":"/root/$REPONAME/data/tiles" \
+	-v "/home/hgunawan/plaquebox-data/zips":"/root/$REPONAME/data/zips" \
+	-v "/home/hgunawan/plaquebox-data/outputs":"/root/$REPONAME/data/outputs" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=$DISPLAY \
 	--ipc=host \
@@ -128,7 +125,7 @@ echo -e "#######################################################################
 echo -e "\tCommand to enter repository:\n\t\t${COMMANDTORUN}\n"
 echo -e "################################################################################\n"
 
-nvidia-docker start -ai $CONTNAME
+docker start -ai $CONTNAME
 
 if [ 0 -eq $(docker container ls -a | grep "$CONTNAME$" | wc -l) ] ; then
         echo -e "\nFailed to start/attach Docker container... Exiting...\n"
@@ -136,7 +133,7 @@ if [ 0 -eq $(docker container ls -a | grep "$CONTNAME$" | wc -l) ] ; then
 fi
 
 # Echo command to start container
-COMMANDTOSTARTCONTAINER="nvidia-docker start -ai $CONTNAME"
+COMMANDTOSTARTCONTAINER="docker start -ai $CONTNAME"
 echo -e "\n\n"
 echo -e "################################################################################\n"
 echo -e "\tCommand to start Docker container:\n\t\t${COMMANDTOSTARTCONTAINER}\n"

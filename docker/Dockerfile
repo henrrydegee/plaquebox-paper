@@ -1,5 +1,7 @@
-FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+#FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
 #FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-devel
+FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu16.04
+CMD nvidia-smi
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   build-essential \
