@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #   && apt-get install -y python3.6 python3.6-dev python3.6-venv
 
 # Updated Python 3.6 install:
-RUN cd /opt && wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
+RUN cd /opt 
+RUN wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
 RUN tar -xvf ./Python-3.6.3.tgz && cd Python-3.6.3
 RUN ./configure
 RUN make  
