@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Updated Python 3.6 install:
 RUN wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.3.tgz 
+RUN ls -a
 RUN cd /opt/Python-3.6.3
 RUN ls -a
 RUN /opt/Python-3.6.3/configure
