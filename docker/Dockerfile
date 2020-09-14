@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 CMD cd /opt && wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
 CMD tar -xvf Python-3.6.3.tgz && cd Python-3.6.3
 CMD ./configure
-RUN make && make install
+CMD make && make install
 
 
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
