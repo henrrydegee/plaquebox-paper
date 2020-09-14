@@ -30,6 +30,7 @@ RUN cd /opt
 RUN wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
 RUN tar -xvf ./Python-3.6.3.tgz 
 RUN cd Python-3.6.3
+RUN ls -a
 RUN ./configure
 RUN make  
 RUN make install
