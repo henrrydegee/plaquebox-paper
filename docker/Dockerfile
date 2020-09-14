@@ -20,8 +20,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ######################################
 # SECTION 1: Python 3.6 packages     #
 ######################################
-RUN add-apt-repository ppa:jonathonf/python-3.6 && apt-get update \
-  && apt-get install -y python3.6 python3.6-dev python3.6-venv
+
+# Outdated:
+# RUN add-apt-repository ppa:jonathonf/python-3.6 && apt-get update \
+#   && apt-get install -y python3.6 python3.6-dev python3.6-venv
+
+# Updated Python 3.6 install:
+RUN cd /opt && wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
+RUN tar -xvf Python-3.6.3.tgz
+RUN cd Python-3.6.3 && ./configure
+RUN make && make install
+
+
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
 
