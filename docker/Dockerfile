@@ -63,11 +63,11 @@ RUN ls -a && python3.6 -V
 # # RUN cat openssl-1.1.1g.tar.gz.sha256
 # RUN tar 
 RUN apt-get -y install openssl
-ADD bash_history /root/.bash_history
-ADD dades /tmp/dades
+# ADD bash_history /root/.bash_history
+# ADD dades /tmp/dades
 
-RUN echo "alias ll='ls -l'" >> /root/.bashrc
-RUN bash -c "history -a"
+# RUN echo "alias ll='ls -l'" >> /root/.bashrc
+# RUN bash -c "history -a"
 
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
