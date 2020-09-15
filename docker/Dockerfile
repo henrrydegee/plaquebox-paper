@@ -26,20 +26,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #   && apt-get install -y python3.6 python3.6-dev python3.6-venv
 
 # Python 3.6 Dependencies:
-# RUN apt-get install -y make \
+RUN apt-get install -y make \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev
 #     #build-essential \
-#     libssl-dev \
-#     zlib1g-dev \
-#     libbz2-dev \
-#     libreadline-dev \
-#     libsqlite3-dev \
 #     #wget \
 #     #curl \
-#     llvm \
-#     libncurses5-dev \
-#     libncursesw5-dev \
-#     xz-utils \
-#     tk-dev
 RUN apt-get update && apt-get install -y autoconf
 
 
