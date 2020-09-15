@@ -68,9 +68,9 @@ echo -e "\n$USAGE\n"
 echo -e "Please identify yourself.\n\t0 - Henrry, 1 - Jeff"
 read user
 if [ "$user" = "0" ] ; then
-	CONTNAME+="-kolin"
+	CONTNAME+="-henrry"
 	JUPYTERPORT="3366"
-	echo -e "Welcome, Kolin. Please use port 3366.\n"
+	echo -e "Welcome, Henrry. Please use port 3366.\n"
 elif [ "$user" = "1" ] ; then
 	CONTNAME+="-jeff"
 	JUPYTERPORT="9001"

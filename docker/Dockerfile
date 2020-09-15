@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   apt-utils \
   software-properties-common \
+  emacs25-nox \
+  net-tools \
   && rm -rf /var/lib/apt/lists/*
 
 ######################################
@@ -26,17 +28,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #   && apt-get install -y python3.6 python3.6-dev python3.6-venv
 
 # Python 3.6 Dependencies:
-RUN apt-get install -y make \
-    libssl-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    llvm \
-    libncurses5-dev \
-    libncursesw5-dev \
-    xz-utils \
-    tk-dev
+# RUN apt-get install -y make \
+#     libssl-dev \
+#     zlib1g-dev \
+#     libbz2-dev \
+#     libreadline-dev \
+#     libsqlite3-dev \
+#     llvm \
+#     libncurses5-dev \
+#     libncursesw5-dev \
+#     xz-utils \
+#     tk-dev
 #     #build-essential \
 #     #wget \
 #     #curl \
@@ -53,6 +55,19 @@ RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
 RUN cd /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
 
+# openSSL for pip Installation
+# RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+# # checksum for Security Purposes:
+# # RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz.sha256
+# # RUN sha256sum openssl-1.1.1g.tar.gz
+# # RUN cat openssl-1.1.1g.tar.gz.sha256
+# RUN tar 
+RUN apt-get -y install openssl
+ADD bash_history /root/.bash_history
+ADD dades /tmp/dades
+
+RUN echo "alias ll='ls -l'" >> /root/.bashrc
+RUN bash -c "history -a"
 
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
@@ -91,5 +106,5 @@ WORKDIR /root
 ######################################
 RUN echo "echo -e \"\n\"" >> /root/.bashrc
 RUN echo "echo -e \"################################################################################\n\"" >> /root/.bashrc
-RUN echo "echo -e \"\tCommand to enter repository:\n\t\tcd /root/plaquebox-paper && jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=9000 &\n\"" >> /root/.bashrc
+RUN echo "echo -e \"\tCommand to enter repository:\n\t\tcd /root/plaquebox-paper && jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --port=3366 &\n\"" >> /root/.bashrc
 RUN echo "echo -e \"################################################################################\n\"" >> /root/.bashrc
