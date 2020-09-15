@@ -31,9 +31,9 @@ RUN tar -xvf /opt/Python-3.6.3.tgz -C /opt/
 RUN ls /opt/ -a
 RUN cd /opt/Python-3.6.3
 RUN /opt/Python-3.6.3/configure --enable-optimizations
-RUN cd /opt/Python-3.6.3 && ls -a && make  
-RUN /opt/Python-3.6.3 && make install
-RUN ls -a
+#RUN cd /opt/Python-3.6.3 && ls -a && make  
+RUN /opt/Python-3.6.3 && ls -a && make install
+RUN ls -a && python3.6 -V
 
 
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
