@@ -46,6 +46,7 @@ RUN apt-get update && apt-get install -y autoconf
 
 
 # Updated Python 3.6 install:
+# Source: https://medium.com/@moreless/install-python-3-6-on-ubuntu-16-04-28791d5c2167
 RUN wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/
 RUN ls /opt/ -a
@@ -69,6 +70,7 @@ RUN apt-get -y install openssl
 # RUN echo "alias ll='ls -l'" >> /root/.bashrc
 # RUN bash -c "history -a"
 
+RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
 
