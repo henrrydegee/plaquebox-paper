@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     libncursesw5-dev \
 #     xz-utils \
 #     tk-dev
+RUN apt-get update && apt-get install autoconf
 
 
 # Updated Python 3.6 install:
