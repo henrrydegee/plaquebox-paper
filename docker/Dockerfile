@@ -70,7 +70,7 @@ RUN apt-get -y install openssl
 # RUN echo "alias ll='ls -l'" >> /root/.bashrc
 # RUN bash -c "history -a"
 
-RUN echo $USER
+RUN whoami
 RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
