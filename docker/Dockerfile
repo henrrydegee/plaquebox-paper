@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   apt-utils \
   software-properties-common \
-  emacs25-nox \
+  emacs24-nox \
   net-tools \
   && rm -rf /var/lib/apt/lists/*
 
