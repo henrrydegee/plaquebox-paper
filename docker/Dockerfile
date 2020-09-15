@@ -25,13 +25,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # RUN add-apt-repository ppa:jonathonf/python-3.6 && apt-get update \
 #   && apt-get install -y python3.6 python3.6-dev python3.6-venv
 
+# Python 3.6 Dependencies:
+RUN apt-get install -y make build-essential libssl-dev zlib1g-dev \
+       libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+       libncurses5-dev libncursesw5-dev xz-utils tk-dev
+
+
 # Updated Python 3.6 install:
 RUN wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/
 RUN ls /opt/ -a
 RUN cd /opt/Python-3.6.5
-RUN /opt/Python-3.6.5/configure --enable-optimizations
-RUN cd /opt/Python-3.6.5 && ls -a && make  
+RUN /opt/Python-3.6.5/configure --enable-optimizations --with-ensurepip=install
+RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
 RUN /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
 
