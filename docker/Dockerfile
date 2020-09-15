@@ -30,7 +30,7 @@ RUN wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.3.tgz -C /opt/
 RUN ls /opt/ -a
 RUN cd /opt/Python-3.6.3
-RUN /opt/Python-3.6.3/configure
+RUN /opt/Python-3.6.3/configure --enable-optimizations
 RUN cd /opt/Python-3.6.3 && ls -a && make  
 RUN /opt/Python-3.6.3 && make install
 RUN ls -a
