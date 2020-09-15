@@ -57,21 +57,31 @@ RUN cd /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
 
 # openSSL for pip Installation
-# RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
 # # checksum for Security Purposes:
 # # RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz.sha256
 # # RUN sha256sum openssl-1.1.1g.tar.gz
 # # RUN cat openssl-1.1.1g.tar.gz.sha256
-# RUN tar 
-RUN apt-get -y install openssl
+RUN tar zxvf openssl-1.1.1g.tar.gz
+RUN cd openssl-1.1.1g \
+    && ./config --prefix=/openssl --openssldir=/openssl no-ssl2 \
+    && make
+    && make test
+    && make install
+
+RUN which openssl
+RUN openssl version
+
+
+# RUN apt-get -y install openssl
 # ADD bash_history /root/.bash_history
 # ADD dades /tmp/dades
 
 # RUN echo "alias ll='ls -l'" >> /root/.bashrc
 # RUN bash -c "history -a"
 
-RUN whoami
-RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org
+# RUN whoami
+# RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3.6 get-pip.py
 RUN ln -sf /usr/bin/python3.6 /usr/bin/python3
 
