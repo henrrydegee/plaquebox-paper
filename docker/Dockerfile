@@ -47,8 +47,8 @@ RUN apt-get update && apt-get install -y autoconf
 RUN wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/
 RUN ls /opt/ -a
-RUN cd /opt/Python-3.6.5 && autoconf && make clean
-RUN /opt/Python-3.6.5/configure --enable-optimizations --with-ensurepip=install
+RUN cd /opt/Python-3.6.5 && autoconf
+RUN cd /opt/Python-3.6.5 && ./configure --enable-optimizations --with-ensurepip=install
 RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
 RUN /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
