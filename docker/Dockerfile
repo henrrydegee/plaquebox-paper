@@ -50,7 +50,7 @@ RUN ls /opt/ -a
 RUN cd /opt/Python-3.6.5 && autoconf
 RUN cd /opt/Python-3.6.5 && ./configure --enable-optimizations --with-ensurepip=install
 RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
-RUN /opt/Python-3.6.5 && ls -a && make install
+RUN cd /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
 
 
