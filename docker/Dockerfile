@@ -55,6 +55,7 @@ RUN cd /opt/Python-3.6.5 && ./configure --enable-optimizations --with-ensurepip=
 RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
 RUN cd /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
+RUN cd /opt/Python-3.6.5/Modules/ && ls -a
 
 # openSSL for pip Installation
 RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
