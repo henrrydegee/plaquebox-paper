@@ -43,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     #wget \
 #     #curl \
 RUN apt-get update && apt-get install -y autoconf
+RUN apt-get -y install openssl
 
 
 # Updated Python 3.6 install:
@@ -59,18 +60,18 @@ RUN cd /opt/Python-3.6.5/Modules/ && ls -a
 RUN cd /usr/local/ && ls -a
 
 # openSSL for pip Installation
-RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+# RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
 # # checksum for Security Purposes:
 # # RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz.sha256
 # # RUN sha256sum openssl-1.1.1g.tar.gz
 # # RUN cat openssl-1.1.1g.tar.gz.sha256
-RUN tar zxvf openssl-1.1.1g.tar.gz
-RUN cd /home && ls -a
-RUN cd openssl-1.1.1g \
-    && ./config --prefix=/openssl --openssldir=/openssl no-ssl2 \
-    && make \
-    && make test \
-    && make install
+# RUN tar zxvf openssl-1.1.1g.tar.gz
+# RUN cd /home && ls -a
+# RUN cd openssl-1.1.1g \
+#     && ./config --prefix=/openssl --openssldir=/openssl no-ssl2 \
+#     && make \
+#     && make test \
+#     && make install
 
 #./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
 
