@@ -42,49 +42,52 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     #build-essential \
 #     #wget \
 #     #curl \
+# RUN apt-get -y install openssl
 RUN apt-get update && apt-get install -y autoconf
-RUN apt-get -y install openssl
+
+
+# openSSL for pip Installation
+RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
+# checksum for Security Purposes:
+# RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz.sha256
+# RUN sha256sum openssl-1.1.1g.tar.gz
+# RUN cat openssl-1.1.1g.tar.gz.sha256
+RUN tar zxvf openssl-1.1.1g.tar.gz \
+    && rm -R openssl-1.1.1g.tar.gz
+RUN cd openssl-1.1.1g \
+    && ./config --prefix=/usr/local/openssl \
+     --openssldir=/usr/local/openssl no-ssl2 \
+    && make \
+    && make test \
+    && make install
+
+RUN which openssl
+RUN openssl version
+
+RUN echo /usr/local/openssl/lib > /etc/ld.so.conf.d/openssl.conf
+RUN ldconfig
 
 
 # Updated Python 3.6 install:
 # Source: https://medium.com/@moreless/install-python-3-6-on-ubuntu-16-04-28791d5c2167
 RUN wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz -P /opt
 RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/
-RUN ls /opt/ -a
 RUN cd /opt/Python-3.6.5 && autoconf
-RUN cd /opt/Python-3.6.5 && ./configure --enable-optimizations --with-ensurepip=install
+RUN cd /opt/Python-3.6.5 \
+    && export LDFLAGS="-L/usr/local/openssl/lib/ -L/path/to/openssl/lib64/" \
+    && export LD_LIBRARY_PATH="/usr/local/openssl/lib/:/path/to/openssl/lib64/" \
+    && export CPPFLAGS="-I/usr/local/openssl/include -I/path/to/openssl/include/openssl" \
+    && ./configure --enable-optimizations --with-ensurepip=install \
+    --with-openssl=/usr/local/openssl
+    # CFLAGS="-I/usr/local/openssl/include" \
+    # LDFLAGS="-L/usr/local/openssl/lib" \
+    # CXX=/usr/bin/g++
 RUN cd /opt/Python-3.6.5 && ls -a && make -j 8
 RUN cd /opt/Python-3.6.5 && ls -a && make install
 RUN ls -a && python3.6 -V
 RUN cd /opt/Python-3.6.5/Modules/ && ls -a
 RUN cd /usr/local/ && ls -a
 
-# openSSL for pip Installation
-# RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz
-# # checksum for Security Purposes:
-# # RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz.sha256
-# # RUN sha256sum openssl-1.1.1g.tar.gz
-# # RUN cat openssl-1.1.1g.tar.gz.sha256
-# RUN tar zxvf openssl-1.1.1g.tar.gz
-# RUN cd /home && ls -a
-# RUN cd openssl-1.1.1g \
-#     && ./config --prefix=/openssl --openssldir=/openssl no-ssl2 \
-#     && make \
-#     && make test \
-#     && make install
-
-#./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
-
-RUN which openssl
-RUN openssl version
-
-
-# RUN apt-get -y install openssl
-# ADD bash_history /root/.bash_history
-# ADD dades /tmp/dades
-
-# RUN echo "alias ll='ls -l'" >> /root/.bashrc
-# RUN bash -c "history -a"
 
 # RUN whoami
 # RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org
