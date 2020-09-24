@@ -28,12 +28,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #   && apt-get install -y python3.6 python3.6-dev python3.6-venv
 
 # Python 3.6 Dependencies:
-# RUN apt-get install -y make \
+RUN apt-cache policy sqlite3
+RUN apt-get install -y make 
 #     libssl-dev \
 #     zlib1g-dev \
 #     libbz2-dev \
 #     libreadline-dev \
-#     libsqlite3-dev \
+#     libsqlite3-dev
 #     llvm \
 #     libncurses5-dev \
 #     libncursesw5-dev \
@@ -44,6 +45,49 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     #curl \
 # RUN apt-get -y install openssl
 RUN apt-get update && apt-get install -y autoconf
+
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_1.0.2g-1ubuntu4.17_amd64.deb 
+RUN apt install -y ./libssl-dev_1.0.2g-1ubuntu4.17_amd64.deb \
+    && rm ./libssl-dev_1.0.2g-1ubuntu4.17_amd64.deb
+
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/z/zlib/zlib1g-dev_1.2.8.dfsg-2ubuntu4.3_amd64.deb 
+RUN apt install -y ./zlib1g-dev_1.2.8.dfsg-2ubuntu4.3_amd64.deb \
+    && rm ./zlib1g-dev_1.2.8.dfsg-2ubuntu4.3_amd64.deb
+
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/b/bzip2/libbz2-dev_1.0.6-8ubuntu0.2_amd64.deb 
+RUN apt install -y ./libbz2-dev_1.0.6-8ubuntu0.2_amd64.deb \
+    && rm ./libbz2-dev_1.0.6-8ubuntu0.2_amd64.deb
+
+RUN wget http://mirrors.kernel.org/ubuntu/pool/main/r/readline6/libreadline-dev_6.3-8ubuntu2_amd64.deb 
+RUN apt install -y ./libreadline-dev_6.3-8ubuntu2_amd64.deb \
+    && rm ./libreadline-dev_6.3-8ubuntu2_amd64.deb
+
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/s/sqlite3/libsqlite3-dev_3.11.0-1ubuntu1.5_amd64.deb 
+RUN apt install -y ./libsqlite3-dev_3.11.0-1ubuntu1.5_amd64.deb \
+    && rm ./libsqlite3-dev_3.11.0-1ubuntu1.5_amd64.deb
+
+# RUN wget http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-defaults/llvm_3.8-33ubuntu3_amd64.deb 
+# RUN apt install -y ./llvm_3.8-33ubuntu3_amd64.deb \
+#     && rm ./llvm_3.8-33ubuntu3_amd64.deb
+
+
+RUN wget http://mirrors.kernel.org/ubuntu/pool/main/n/ncurses/libncurses5-dev_6.0+20160213-1ubuntu1_amd64.deb 
+RUN apt install -y ./libncurses5-dev_6.0+20160213-1ubuntu1_amd64.deb \
+    && rm ./libncurses5-dev_6.0+20160213-1ubuntu1_amd64.deb
+
+RUN wget http://mirrors.kernel.org/ubuntu/pool/main/n/ncurses/libncursesw5-dev_6.0+20160213-1ubuntu1_amd64.deb 
+RUN apt install -y ./libncursesw5-dev_6.0+20160213-1ubuntu1_amd64.deb \
+    && rm ./libncursesw5-dev_6.0+20160213-1ubuntu1_amd64.deb
+
+RUN wget http://mirrors.kernel.org/ubuntu/pool/main/x/xz-utils/xz-utils_5.1.1alpha+20120614-2ubuntu2_amd64.deb 
+RUN apt install -y ./xz-utils_5.1.1alpha+20120614-2ubuntu2_amd64.deb \
+    && rm ./xz-utils_5.1.1alpha+20120614-2ubuntu2_amd64.deb
+
+RUN wget http://mirrors.kernel.org/ubuntu/pool/main/t/tcltk-defaults/tk-dev_8.6.0+9_amd64.deb 
+RUN apt install -y ./tk-dev_8.6.0+9_amd64.deb \
+    && rm ./tk-dev_8.6.0+9_amd64.deb
+
+RUN apt-get install liblzma-dev
 
 
 # openSSL for pip Installation
@@ -61,8 +105,8 @@ RUN cd openssl-1.1.1g \
     && make test \
     && make install
 
-RUN which openssl
-RUN openssl version
+# RUN which openssl
+# RUN openssl version
 
 RUN echo /usr/local/openssl/lib > /etc/ld.so.conf.d/openssl.conf
 RUN ldconfig
@@ -71,14 +115,17 @@ RUN ldconfig
 # Updated Python 3.6 install:
 # Source: https://medium.com/@moreless/install-python-3-6-on-ubuntu-16-04-28791d5c2167
 RUN wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz -P /opt
-RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/
+RUN tar -xvf /opt/Python-3.6.5.tgz -C /opt/ \
+    && rm -R /opt/Python-3.6.5.tgz
 RUN cd /opt/Python-3.6.5 && autoconf
 RUN cd /opt/Python-3.6.5 \
     && export LDFLAGS="-L/usr/local/openssl/lib/ -L/path/to/openssl/lib64/" \
     && export LD_LIBRARY_PATH="/usr/local/openssl/lib/:/path/to/openssl/lib64/" \
     && export CPPFLAGS="-I/usr/local/openssl/include -I/path/to/openssl/include/openssl" \
-    && ./configure --enable-optimizations --with-ensurepip=install \
-    --with-openssl=/usr/local/openssl
+    && ./configure --enable-optimizations \
+    --with-ensurepip=install \
+    --with-openssl=/usr/local/openssl \
+    --enable-loadable-sqlite-extensions
     # CFLAGS="-I/usr/local/openssl/include" \
     # LDFLAGS="-L/usr/local/openssl/lib" \
     # CXX=/usr/bin/g++

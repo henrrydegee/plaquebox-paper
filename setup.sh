@@ -103,14 +103,14 @@ fi
 echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
 docker create -it --name=$CONTNAME --gpus=all \
 	-v "$SCRIPTPATH":/root/$REPONAME \
-	-v "/home/hgunawan/plaquebox-data/box":"/root/$REPONAME/data/box" \
-	-v "/home/hgunawan/plaquebox-data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
-	-v "/home/hgunawan/plaquebox-data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
-	-v "/home/hgunawan/plaquebox-data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
-	-v "/home/hgunawan/plaquebox-data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
-	-v "/home/hgunawan/plaquebox-data/tiles":"/root/$REPONAME/data/tiles" \
-	-v "/home/hgunawan/plaquebox-data/zips":"/root/$REPONAME/data/zips" \
-	-v "/home/hgunawan/plaquebox-data/outputs":"/root/$REPONAME/data/outputs" \
+	-v "/home/hgunawan/plaquebox-paper/data/box":"/root/$REPONAME/data/box" \
+	-v "/home/hgunawan/plaquebox-paper/data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
+	-v "/home/hgunawan/plaquebox-paper/data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
+	-v "/home/hgunawan/plaquebox-paper/data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
+	-v "/home/hgunawan/plaquebox-paper/data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
+	-v "/home/hgunawan/plaquebox-paper/data/tiles":"/root/$REPONAME/data/tiles" \
+	-v "/home/hgunawan/plaquebox-paper/data/zips":"/root/$REPONAME/data/zips" \
+	-v "/home/hgunawan/plaquebox-paper/data/outputs":"/root/$REPONAME/data/outputs" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=$DISPLAY \
 	--ipc=host \
