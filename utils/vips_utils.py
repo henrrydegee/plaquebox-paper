@@ -89,9 +89,11 @@ def image_fields_dict(im_with_fields):
             for k in im_with_fields.get_fields() 
             if im_with_fields.get_typeof(k)}
 
-def save_and_tile(image_to_segment, output_dir, tile_size=1536):
-    basename = os.path.basename(image_to_segment.filename)
-    base_dir_name = os.path.join(output_dir, basename.split('.svs')[0])
+def save_and_tile(image_to_segment, imagename, output_dir, tile_size=1536):
+#     basename = os.path.basename(image_to_segment.filename)
+#     base_dir_name = os.path.join(output_dir, basename.split('.svs')[0])
+    base_dir_name = os.path.join(output_dir, imagename)
+    print(base_dir_name)
     if not os.path.exists(base_dir_name):
         os.makedirs(base_dir_name)
     Vips.Image.dzsave(image_to_segment, base_dir_name,
