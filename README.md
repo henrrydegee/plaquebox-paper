@@ -78,7 +78,7 @@ The directories below would be created after running the setup commands for the 
 |       |- images : JPEG Images of Different Plaque Locations
 |       '- numpy : Numpy Array containing Plaque Identifications
 |- brainseg : Contains Outputs from Brain Segmentation Pipeline
-|   '- images : JPEG Images of Brain Segmentation (between WM & GM)
+|   |- images : JPEG Images of Brain Segmentation (between WM & GM)
 |   '- numpy : Numpy Array containing labeled Segmentation
 '- postprocess : Contains Post-processed outputs of Brain Segmentation Pipeline
     |- images : JPEG Images of Post-Processed Brain Segmentation
