@@ -19,11 +19,11 @@ pandas                    0.23.0           py36h637b7d7_0
 scikit-learn              0.19.1           py36h7aa7ec6_0     
 scikit-image              0.13.1           py36h14c3975_1    
 scipy                     1.1.0            py36hfc37229_0  
-pytorch                   0.3.0            py35_cuda8.0.61_cudnn7.0.3hb362f6e_4    pytorch
-torchvision               0.2.1                    py36_1    pytorch   
+pytorch                   1.4.0            py35_cuda8.0.61_cudnn7.0.3hb362f6e_4    pytorch
+torchvision               0.5.0                    py36_1    pytorch   
 libopencv                 3.4.1                h1a3b859_1   
-opencv                    3.4.1            py36h6fd60c2_2  
-py-opencv                 3.4.1            py36h0676e08_1  
+opencv                    3.4.5.20         py36h6fd60c2_2  
+py-opencv                 3.4.5.20         py36h0676e08_1  
 pyvips                    2.1.2                     <pip>
 tqdm                      4.23.4                   py36_0
 ```
@@ -47,6 +47,23 @@ This repository can be cloned directly through:
 ```
 git clone https://github.com/keiserlab/plaquebox-paper.git
 ```
+
+## Docker Setup & WSI Directory
+
+To setup, go to the main repository directory and run the following command:
+'''
+./setup.sh
+'''
+
+This will build the Docker image and create the Docker Container with the dependencies installed. Afterwards, place the WSI slides into the following directory for inference:
+'''
+./data/wsi/
+'''
+
+## For Inference
+
+Simply open [Main Pipeline.ipynb](https://github.com/henrrydegee/plaquebox-paper/blob/update_test/Main%20Pipeline.ipynb) to infer both Brain Segmentation and Plaque Detection. 
+The Notebook contains the entire pipeline from Pre-processing to Post-processing of both Brain Segmentation and Plaque Detection. Refer to the Notebook for more details.
 
 ## Demo
 
