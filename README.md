@@ -52,15 +52,15 @@ git clone https://github.com/keiserlab/plaquebox-paper.git
 
 To setup, go to the main repository directory and run the following command:
 
-'''
+```
 ./setup.sh
-'''
+```
 
 This will build the Docker image and create the Docker Container with the dependencies installed. Afterwards, place the WSI slides into the following directory for inference:
 
-'''
+```
 ./data/wsi/
-'''
+```
 
 ## For Inference
 
