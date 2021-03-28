@@ -67,6 +67,24 @@ This will build the Docker image and create the Docker Container with the depend
 Simply open [Main Pipeline.ipynb](https://github.com/henrrydegee/plaquebox-paper/blob/update_test/Main%20Pipeline.ipynb) to infer both Brain Segmentation and Plaque Detection. 
 The Notebook contains the entire pipeline from Pre-processing to Post-processing of both Brain Segmentation and Plaque Detection. Refer to the Notebook for more details.
 
+The directories below would be created after running the setup commands for the following purposes:
+```
+./data/
+|- wsi : (Input Files, .svs type) To contain main WSI slides to be processed for inference
+|- norm_tiles : Contains Normalized Tiled Images after Preprocessing
+|- outputs : Contains Outputs from Plaquebox Pipeline
+|   |- heatmaps : Contains Numpy array containing confidence prediction of plaques
+|   '- masked_plaque : Contains 
+|       |- images : JPEG Images of Different Plaque Locations
+|       '- numpy : Numpy Array containing Plaque Identifications
+|- brainseg : Contains Outputs from Brain Segmentation Pipeline
+|   '- images : JPEG Images of Brain Segmentation (between WM & GM)
+|   '- numpy : Numpy Array containing labeled Segmentation
+'- postprocess : Contains Post-processed outputs of Brain Segmentation Pipeline
+    |- images : JPEG Images of Post-Processed Brain Segmentation
+    '- numpy : Numpy Array containing Post-Processed labeled Segmentation
+```
+
 ## Demo
 
 Notebook [2.2) CNN Models - Test Cases](https://github.com/keiserlab/plaquebox-paper/blob/master/2.2%29%20CNN%20Models%20-%20Test%20Cases.ipynb) is a demo that shows how to apply the trained CNN model on unseen dataset. Simply download the tiles from Zenodo repository and unzip it to the /data folder, then the notebook can be run through Jupyter.
