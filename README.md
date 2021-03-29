@@ -74,9 +74,10 @@ The directories below would be created after running the setup commands for the 
 |- norm_tiles : Contains Normalized Tiled Images after Preprocessing
 |- outputs : Contains Outputs from Plaquebox Pipeline
 |   |- heatmaps : Contains Numpy array containing confidence prediction of plaques
-|   '- masked_plaque : Contains 
-|       |- images : JPEG Images of Different Plaque Locations
-|       '- numpy : Numpy Array containing Plaque Identifications
+|   |- masked_plaque : Contains post-processed, detected plaques
+|   |   |- images : JPEG Images of Different Plaque Locations
+|   |   '- numpy : Numpy Array containing Plaque Identifications
+|   '-CNNscore : Contains CSV files to summarize plawues at different Segmentation location
 |- brainseg : Contains Outputs from Brain Segmentation Pipeline
 |   |- images : JPEG Images of Brain Segmentation (between WM & GM)
 |   '- numpy : Numpy Array containing labeled Segmentation
@@ -85,42 +86,7 @@ The directories below would be created after running the setup commands for the 
     '- numpy : Numpy Array containing Post-Processed labeled Segmentation
 ```
 
-## Demo
-
-Notebook [2.2) CNN Models - Test Cases](https://github.com/keiserlab/plaquebox-paper/blob/master/2.2%29%20CNN%20Models%20-%20Test%20Cases.ipynb) is a demo that shows how to apply the trained CNN model on unseen dataset. Simply download the tiles from Zenodo repository and unzip it to the /data folder, then the notebook can be run through Jupyter.
-
-## Instructions for use
-
-This repository contains 11 notebooks to reproduce the results from the linked paper. Each notebook includes details relevant to a portion of the described pipeline, with detailed descriptions at the top of each notebook. For results reproduction, these files are presented in sequential order and depend on the previous notebook.
-
-### Data Download
-
-Before running the code, it is necessary to download the raw datafiles from the corresponding Zenodo repository above and unzip the files to the /data folder.
 
 ### Modifying Filepaths
 
 The filepaths must be specified as indicated in each notebook to specify the location of the downloaded data.
-
-
-### 1. Preprocessing Steps
-
-**Notebooks 1.1-1.3** describe necessary preprocessing steps, including: color normalization, whole slide image tiling, blob detection, and dataset splitting.
-
-### 2. Model Training and Development
-
-**Notebooks 2.1 and 2.2** detail model development, training, and testing.
-
-### 3. Visualizing Predictions
-
-**Notebook 3** describes prediction confidence heatmaps.
-
-### 4. Saliency Maps
-
-**Notebooks 4.1 and 4.2** describe feature interpretation studies, including feature occlusion and guided-grad cam studies.
-
-### 5. CERAD-like Scoring on Whole Slide Images
-**Notebooks 5.1-5.3** describe whole slide scoring.
-
-
-
-
