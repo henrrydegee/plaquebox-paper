@@ -7,6 +7,7 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 IMGNAME="plaquebox"
 CONTNAME="plaquebox"
 DOCKERFILEPATH="./docker/Dockerfile"
+FOLDERDIR="/home/hgunawan"
 REPONAME="plaquebox-paper"
 JUPYTERPORT="3366"
 cd "$SCRIPTPATH"
@@ -100,17 +101,71 @@ if [ 1 -eq $(docker container ls -a | grep "$CONTNAME$" | wc -l) ] ; then
 	docker rm -f $CONTNAME
 fi
 
+# Directories for Main Pipeline.ipynb
+if [ ! -d "$FOLDERDIR/$REPONAME/data/wsi" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/wsi;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/norm_tiles" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/norm_tiles;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/outputs" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/outputs;
+    mkdir $FOLDERDIR/$REPONAME/data/CNNscore;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/heatmaps;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque/images;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque/numpy;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/outputs/heatmaps" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/heatmaps;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/outputs/masked_plaque" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque/images;
+    mkdir $FOLDERDIR/$REPONAME/data/outputs/masked_plaque/numpy;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/brainseg" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/brainseg;
+    mkdir $FOLDERDIR/$REPONAME/data/brainseg/images;
+    mkdir $FOLDERDIR/$REPONAME/data/brainseg/numpy;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/brainseg/images" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/brainseg/images;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/brainseg/numpy" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/brainseg/numpy;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/postprocess" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/postprocess;
+    mkdir $FOLDERDIR/$REPONAME/data/postprocess/images;
+    mkdir $FOLDERDIR/$REPONAME/data/postprocess/numpy;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/postprocess/images" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/postprocess/images;
+fi
+
+if [ ! -d "$FOLDERDIR/$REPONAME/data/postprocess/numpy" ]; then
+    mkdir $FOLDERDIR/$REPONAME/data/postprocess/numpy;
+fi
+
+# Create Docker Container
 echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
 docker create -it --name=$CONTNAME --gpus=all \
 	-v "$SCRIPTPATH":/root/$REPONAME \
-	-v "/home/hgunawan/plaquebox-paper/data/box":"/root/$REPONAME/data/box" \
-	-v "/home/hgunawan/plaquebox-paper/data/Dataset 1a Development_train":"/root/$REPONAME/data/Dataset 1a Development_train" \
-	-v "/home/hgunawan/plaquebox-paper/data/Dataset 1b Development_validation":"/root/$REPONAME/data/Dataset 1b Development_validation" \
-	-v "/home/hgunawan/plaquebox-paper/data/Dataset 2 Hold-out":"/root/$REPONAME/data/Dataset 2 Hold-out" \
-	-v "/home/hgunawan/plaquebox-paper/data/Dataset 3 CERAD-like hold-out":"/root/$REPONAME/data/Dataset 3 CERAD-like hold-out" \
-	-v "/home/hgunawan/plaquebox-paper/data/tiles":"/root/$REPONAME/data/tiles" \
-	-v "/home/hgunawan/plaquebox-paper/data/zips":"/root/$REPONAME/data/zips" \
-	-v "/home/hgunawan/plaquebox-paper/data/outputs":"/root/$REPONAME/data/outputs" \
+	-v "$FOLDERDIR/$REPONAME/data/wsi":"/root/$REPONAME/data/wsi" \
+	-v "$FOLDERDIR/$REPONAME/data/norm_tiles":"/root/$REPONAME/data/norm_tiles" \
+        -v "$FOLDERDIR/$REPONAME/data/outputs":"/root/$REPONAME/data/outputs" \
+	-v "$FOLDERDIR/$REPONAME/data/brainseg":"/root/$REPONAME/data/brainseg" \
+        -v "$FOLDERDIR/$REPONAME/data/postprocess":"/root/$REPONAME/data/postprocess" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=$DISPLAY \
 	--ipc=host \
