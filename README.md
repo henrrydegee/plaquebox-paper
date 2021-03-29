@@ -19,11 +19,11 @@ pandas                    0.23.0           py36h637b7d7_0
 scikit-learn              0.19.1           py36h7aa7ec6_0     
 scikit-image              0.13.1           py36h14c3975_1    
 scipy                     1.1.0            py36hfc37229_0  
-pytorch                   0.3.0            py35_cuda8.0.61_cudnn7.0.3hb362f6e_4    pytorch
-torchvision               0.2.1                    py36_1    pytorch   
+pytorch                   1.4.0            py35_cuda8.0.61_cudnn7.0.3hb362f6e_4    pytorch
+torchvision               0.5.0                    py36_1    pytorch   
 libopencv                 3.4.1                h1a3b859_1   
-opencv                    3.4.1            py36h6fd60c2_2  
-py-opencv                 3.4.1            py36h0676e08_1  
+opencv                    3.4.5.20         py36h6fd60c2_2  
+py-opencv                 3.4.5.20         py36h0676e08_1  
 pyvips                    2.1.2                     <pip>
 tqdm                      4.23.4                   py36_0
 ```
@@ -48,42 +48,45 @@ This repository can be cloned directly through:
 git clone https://github.com/keiserlab/plaquebox-paper.git
 ```
 
-## Demo
+## Docker Setup & WSI Directory
 
-Notebook [2.2) CNN Models - Test Cases](https://github.com/keiserlab/plaquebox-paper/blob/master/2.2%29%20CNN%20Models%20-%20Test%20Cases.ipynb) is a demo that shows how to apply the trained CNN model on unseen dataset. Simply download the tiles from Zenodo repository and unzip it to the /data folder, then the notebook can be run through Jupyter.
+To setup, go to the main repository directory and run the following command:
 
-## Instructions for use
+```
+./setup.sh
+```
 
-This repository contains 11 notebooks to reproduce the results from the linked paper. Each notebook includes details relevant to a portion of the described pipeline, with detailed descriptions at the top of each notebook. For results reproduction, these files are presented in sequential order and depend on the previous notebook.
+This will build the Docker image and create the Docker Container with the dependencies installed. Afterwards, place the WSI slides into the following directory for inference:
 
-### Data Download
+```
+./data/wsi/
+```
 
-Before running the code, it is necessary to download the raw datafiles from the corresponding Zenodo repository above and unzip the files to the /data folder.
+## For Inference
+
+Simply open [Main Pipeline.ipynb](https://github.com/henrrydegee/plaquebox-paper/blob/update_test/Main%20Pipeline.ipynb) to infer both Brain Segmentation and Plaque Detection. 
+The Notebook contains the entire pipeline from Pre-processing to Post-processing of both Brain Segmentation and Plaque Detection. Refer to the Notebook for more details.
+
+The directories below would be created after running the setup commands for the following purposes:
+```
+./data/
+|- wsi : (Input Files, .svs type) To contain main WSI slides to be processed for inference
+|- norm_tiles : Contains Normalized Tiled Images after Preprocessing
+|- outputs : Contains Outputs from Plaquebox Pipeline
+|   |- heatmaps : Contains Numpy array containing confidence prediction of plaques
+|   |- masked_plaque : Contains post-processed, detected plaques
+|   |   |- images : JPEG Images of Different Plaque Locations
+|   |   '- numpy : Numpy Array containing Plaque Identifications
+|   '-CNNscore : Contains CSV files to summarize plawues at different Segmentation location
+|- brainseg : Contains Outputs from Brain Segmentation Pipeline
+|   |- images : JPEG Images of Brain Segmentation (between WM & GM)
+|   '- numpy : Numpy Array containing labeled Segmentation
+'- postprocess : Contains Post-processed outputs of Brain Segmentation Pipeline
+    |- images : JPEG Images of Post-Processed Brain Segmentation
+    '- numpy : Numpy Array containing Post-Processed labeled Segmentation
+```
+
 
 ### Modifying Filepaths
 
 The filepaths must be specified as indicated in each notebook to specify the location of the downloaded data.
-
-
-### 1. Preprocessing Steps
-
-**Notebooks 1.1-1.3** describe necessary preprocessing steps, including: color normalization, whole slide image tiling, blob detection, and dataset splitting.
-
-### 2. Model Training and Development
-
-**Notebooks 2.1 and 2.2** detail model development, training, and testing.
-
-### 3. Visualizing Predictions
-
-**Notebook 3** describes prediction confidence heatmaps.
-
-### 4. Saliency Maps
-
-**Notebooks 4.1 and 4.2** describe feature interpretation studies, including feature occlusion and guided-grad cam studies.
-
-### 5. CERAD-like Scoring on Whole Slide Images
-**Notebooks 5.1-5.3** describe whole slide scoring.
-
-
-
-
