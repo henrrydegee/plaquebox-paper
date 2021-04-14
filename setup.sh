@@ -5,7 +5,8 @@
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 IMGNAME="plaquebox"
-CONTNAME="plaquebox"
+IMGTAG="inference"
+CONTNAME="infer-plaquebox"
 DOCKERFILEPATH="./docker/Dockerfile"
 FOLDERDIR="/home/hgunawan"
 REPONAME="plaquebox-paper"
@@ -91,9 +92,9 @@ if [ "$REMOVEPREVDOCKERIMAGE" = true ] ; then
 fi
 
 # Build and run the image
-echo -e "\nBuilding image $IMGNAME..."
-docker build $REMOVEIMDDOCKERCONTAINERCMD -f $DOCKERFILEPATH -t $IMGNAME .
-test_retval "build Docker image $IMGNAME"
+echo -e "\nBuilding image $IMGNAME:$IMGTAG..."
+docker build $REMOVEIMDDOCKERCONTAINERCMD -f $DOCKERFILEPATH -t $IMGNAME:$IMGTAG .
+test_retval "build Docker image $IMGNAME:$IMGTAG"
 
 # Build a container from the image
 echo -e "\nRemoving older container $CONTNAME..."
@@ -158,7 +159,7 @@ if [ ! -d "$FOLDERDIR/$REPONAME/data/postprocess/numpy" ]; then
 fi
 
 # Create Docker Container
-echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME..."
+echo -e "\nBuilding a container $CONTNAME from the image $IMGNAME:$IMGTAG..."
 docker create -it --name=$CONTNAME --gpus=all \
 	-v "$SCRIPTPATH":/root/$REPONAME \
 	-v "$FOLDERDIR/$REPONAME/data/wsi":"/root/$REPONAME/data/wsi" \
@@ -170,7 +171,7 @@ docker create -it --name=$CONTNAME --gpus=all \
 	-e DISPLAY=$DISPLAY \
 	--ipc=host \
 	-p $JUPYTERPORT:$JUPYTERPORT \
-	$IMGNAME /bin/bash
+	$IMGNAME:$IMGTAG /bin/bash
 test_retval "create Docker container"
 
 # Echo command to run the application
